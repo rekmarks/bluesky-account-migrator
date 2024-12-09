@@ -1,0 +1,59 @@
+{
+  "name": "bluesky-account-migrator",
+  "version": "0.0.0",
+  "description": "A simple CLI for migrating Bluesky accounts from one PDS to another.",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "dist/index.cjs",
+  "type": "module",
+  "bin": {
+    "bam": "dist/main.js"
+  },
+  "scripts": {
+    "build": "ts-bridge --project tsconfig.build.json --verbose --clean --no-references",
+    "build:chmod": "chmod +x ./dist/main.mjs && chmod +x ./dist/main.js",
+    "build:post": "yarn build:chmod",
+    "lint": "prettier --check . && tsc --noEmit",
+    "lint:fix": "prettier --write . && tsc --noEmit",
+    "test": "vitest run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rekmarks/bluesky-account-migrator.git"
+  },
+  "keywords": [
+    "bluesky",
+    "pds",
+    "atproto"
+  ],
+  "author": "Erik Marks <rekmarks@protonmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rekmarks/bluesky-account-migrator/issues"
+  },
+  "homepage": "https://github.com/rekmarks/bluesky-account-migrator#readme",
+  "devDependencies": {
+    "@ts-bridge/cli": "^0.6.1",
+    "@tsconfig/node22": "^22.0.0",
+    "@types/node": "^22.10.1",
+    "@types/yargs": "^17.0.33",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.2",
+    "vite": "^5.4.11",
+    "vitest": "^2.1.8"
+  },
+  "dependencies": {
+    "yargs": "^17.7.2"
+  }
+}
