@@ -54,6 +54,9 @@
     "vitest": "^2.1.8"
   },
   "dependencies": {
+    "@atproto/api": "^0.13.19",
+    "@atproto/crypto": "^0.4.2",
+    "uint8arrays": "^5.1.0",
     "yargs": "^17.7.2"
   }
 }
