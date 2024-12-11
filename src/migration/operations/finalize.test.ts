@@ -4,16 +4,16 @@ import { makeMockAgent, mockAccountDid } from '../../../test/utils.js';
 
 describe('finalizeMigration', () => {
   it('should activate new account and deactivate old account', async () => {
-    const fromAgent = makeMockAgent();
-    const toAgent = makeMockAgent();
+    const oldAgent = makeMockAgent();
+    const newAgent = makeMockAgent();
 
     await finalizeMigration({
-      fromAgent: fromAgent,
-      toAgent: toAgent,
+      oldAgent: oldAgent,
+      newAgent: newAgent,
       accountDid: mockAccountDid,
     });
 
-    expect(toAgent.com.atproto.server.activateAccount).toHaveBeenCalled();
-    expect(fromAgent.com.atproto.server.deactivateAccount).toHaveBeenCalled();
+    expect(newAgent.com.atproto.server.activateAccount).toHaveBeenCalled();
+    expect(oldAgent.com.atproto.server.deactivateAccount).toHaveBeenCalled();
   });
 });

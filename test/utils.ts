@@ -1,19 +1,29 @@
-import { vi, beforeEach, Mocked } from 'vitest';
+import type { HeadersMap } from '@atproto/xrpc';
 import { AtpAgent } from '@atproto/api';
+import { vi, Mocked } from 'vitest';
 import type { MigrationCredentials } from '../src/migration/types.js';
 
 export const makeMockCredentials = (): MigrationCredentials => ({
-  fromPdsUrl: 'https://old.bsky.social',
-  toPdsUrl: 'https://new.bsky.social',
-  fromHandle: 'old.handle.com',
-  fromPassword: 'oldpass123',
-  toHandle: 'new.handle.com',
-  toEmail: 'new@email.com',
-  toPassword: 'newpass123',
+  oldPdsUrl: 'https://old.bsky.social',
+  newPdsUrl: 'https://new.bsky.social',
+  oldHandle: 'old.handle.com',
+  oldPassword: 'oldpass123',
+  newHandle: 'new.handle.com',
+  newEmail: 'new@email.com',
+  newPassword: 'newpass123',
   inviteCode: 'invite-123',
 });
 
 export const mockAccountDid = 'did:plc:testuser123';
+
+export const makeXrpcResponse = <Data>(
+  data: Data,
+  headers: HeadersMap = {},
+) => ({
+  success: true,
+  headers,
+  data,
+});
 
 export function makeMockAgent(did?: string): Mocked<AtpAgent> {
   return {

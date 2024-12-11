@@ -1,23 +1,22 @@
+import { isObject, stringify } from '../utils.js';
 import * as operations from './operations/index.js';
-import { AgentPair, MigrationCredentials } from './types.js';
+import type { AgentPair, MigrationCredentials } from './types.js';
 
 export enum MigrationState {
-  Ready,
-  Initialized,
-  NewAccount,
-  MigratedData,
-  MigratedIdentity,
-  Finalized,
+  Ready = 'Ready',
+  Initialized = 'Initialized',
+  NewAccount = 'NewAccount',
+  MigratedData = 'MigratedData',
+  MigratedIdentity = 'MigratedIdentity',
+  Finalized = 'Finalized',
 }
 
-export const MigrationStateNames = Object.freeze(Object.values(MigrationState));
+const stateIndices = Object.freeze(Object.values(MigrationState));
 
-const stringify = (value: unknown) => JSON.stringify(value, null, 2);
-
-const isObject = (
-  value: unknown,
-): value is Record<string | number | symbol, unknown> =>
-  typeof value === 'object' && value !== null;
+const nextState = (state: MigrationState): MigrationState =>
+  state === MigrationState.Finalized
+    ? MigrationState.Finalized
+    : (stateIndices[stateIndices.indexOf(state) + 1] as MigrationState);
 
 type TransitionParams = {
   [MigrationState.Ready]: [MigrationCredentials];
@@ -74,7 +73,7 @@ type MigrationParams = {
  * ```ts
  * const migration = new Migration({ credentials: ... }); // No confirmation token
  * await migration.run(); // Will run until needing a confirmation token
- * migration.setConfirmationToken('...'); // Set the confirmation token
+ * migration.confirmationToken = '...'; // Set the confirmation token
  * await migration.run(); // Will run until the migration is complete
  * ```
  */
@@ -82,14 +81,22 @@ export class Migration {
   #state: MigrationState;
   readonly #transitions: typeof transitionMap;
   readonly #params: MigrationParams;
-  #toAccountPrivateKey?: string;
+  #newPrivateKey?: string;
 
   get accountDid() {
     return this.#params.agents?.accountDid;
   }
 
-  get toAccountPrivateKey() {
-    return this.#toAccountPrivateKey;
+  get newPrivateKey() {
+    return this.#newPrivateKey;
+  }
+
+  set agents(agents: AgentPair) {
+    this.#params.agents = agents;
+  }
+
+  set confirmationToken(token: string) {
+    this.#params.confirmationToken = token;
   }
 
   constructor(
@@ -100,14 +107,6 @@ export class Migration {
     this.#state = state;
     this.#params = params;
     this.#transitions = transitions;
-  }
-
-  setAgents(agents: AgentPair) {
-    this.#params.agents = agents;
-  }
-
-  setConfirmationToken(token: string) {
-    this.#params.confirmationToken = token;
   }
 
   async run(): Promise<MigrationState> {
@@ -129,7 +128,7 @@ export class Migration {
       // @ts-expect-error TypeScript doesn't know how to spread a union of tuples here.
       const result = await this.#transitions[this.#state](...params);
       this.#handleResult(result);
-      this.#state = this.#state + 1;
+      this.#state = nextState(this.#state);
     }
     return this.#state;
   }
@@ -189,7 +188,7 @@ export class Migration {
         if (typeof result !== 'string') {
           return fail(result);
         }
-        this.#toAccountPrivateKey = result;
+        this.#newPrivateKey = result;
         break;
 
       case MigrationState.Initialized:
@@ -208,8 +207,6 @@ export class Migration {
   }
 
   #fail(message: string): never {
-    throw new Error(
-      `Migration failed during "${this.#state}: ${MigrationStateNames[this.#state]}": ${message}`,
-    );
+    throw new Error(`Migration failed during "${this.#state}": ${message}`);
   }
 }

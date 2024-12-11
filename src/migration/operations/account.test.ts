@@ -1,43 +1,42 @@
-import { describe, it, expect, vi, Mocked } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { createNewAccount } from './account.js';
 import {
   makeMockAgent,
   makeMockCredentials,
+  makeXrpcResponse,
   mockAccountDid,
 } from '../../../test/utils.js';
 
 describe('createNewAccount', () => {
   it('should create and authenticate new account', async () => {
     const mockCredentials = makeMockCredentials();
-    const fromAgent = makeMockAgent(mockAccountDid);
-    const toAgent = makeMockAgent();
+    const oldAgent = makeMockAgent(mockAccountDid);
+    const newAgent = makeMockAgent();
     const newServerDid = 'did:plc:newserver123';
 
-    vi.mocked(toAgent.com.atproto.server.describeServer).mockResolvedValue({
-      // @ts-expect-error
-      data: { did: newServerDid },
-    });
+    vi.mocked(newAgent.com.atproto.server.describeServer).mockResolvedValue(
+      makeXrpcResponse({ did: newServerDid, availableUserDomains: [] }),
+    );
 
-    // @ts-expect-error
-    vi.mocked(fromAgent.com.atproto.server.getServiceAuth).mockResolvedValue({
-      data: { token: 'jwt-token-123' },
-    });
+    vi.mocked(oldAgent.com.atproto.server.getServiceAuth).mockResolvedValue(
+      makeXrpcResponse({ token: 'jwt-token-123' }),
+    );
 
     await createNewAccount(
-      { fromAgent: fromAgent, toAgent: toAgent, accountDid: mockAccountDid },
+      { oldAgent: oldAgent, newAgent: newAgent, accountDid: mockAccountDid },
       mockCredentials,
     );
 
-    expect(fromAgent.com.atproto.server.getServiceAuth).toHaveBeenCalledWith({
+    expect(oldAgent.com.atproto.server.getServiceAuth).toHaveBeenCalledWith({
       aud: newServerDid,
       lxm: 'com.atproto.server.createAccount',
     });
 
-    expect(toAgent.com.atproto.server.createAccount).toHaveBeenCalledWith(
+    expect(newAgent.com.atproto.server.createAccount).toHaveBeenCalledWith(
       {
-        handle: mockCredentials.toHandle,
-        email: mockCredentials.toEmail,
-        password: mockCredentials.toPassword,
+        handle: mockCredentials.newHandle,
+        email: mockCredentials.newEmail,
+        password: mockCredentials.newPassword,
         did: mockAccountDid,
         inviteCode: mockCredentials.inviteCode,
       },
@@ -47,9 +46,9 @@ describe('createNewAccount', () => {
       },
     );
 
-    expect(toAgent.login).toHaveBeenCalledWith({
-      identifier: mockCredentials.toHandle,
-      password: mockCredentials.toPassword,
+    expect(newAgent.login).toHaveBeenCalledWith({
+      identifier: mockCredentials.newHandle,
+      password: mockCredentials.newPassword,
     });
   });
 });

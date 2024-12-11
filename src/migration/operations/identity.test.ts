@@ -1,6 +1,10 @@
 import { describe, it, expect, vi } from 'vitest';
 import { migrateIdentity } from './identity.js';
-import { makeMockAgent, mockAccountDid } from '../../../test/utils.js';
+import {
+  makeMockAgent,
+  makeXrpcResponse,
+  mockAccountDid,
+} from '../../../test/utils.js';
 import { Secp256k1Keypair } from '@atproto/crypto';
 
 vi.mock('@atproto/crypto', () => ({
@@ -11,8 +15,8 @@ vi.mock('@atproto/crypto', () => ({
 
 describe('migrateIdentity', () => {
   it('should perform identity migration successfully', async () => {
-    const fromAgent = makeMockAgent();
-    const toAgent = makeMockAgent();
+    const oldAgent = makeMockAgent();
+    const newAgent = makeMockAgent();
     const mockToken = 'test-token';
     const mockDid = 'did:key:mock123';
 
@@ -23,44 +27,32 @@ describe('migrateIdentity', () => {
     });
 
     vi.mocked(
-      toAgent.com.atproto.identity.getRecommendedDidCredentials,
-    ).mockResolvedValue(
-      // @ts-expect-error
-      {
-        data: {
-          rotationKeys: ['existing-key'],
-        },
-      },
-    );
+      newAgent.com.atproto.identity.getRecommendedDidCredentials,
+    ).mockResolvedValue(makeXrpcResponse({ rotationKeys: ['existing-key'] }));
 
-    vi.mocked(
-      fromAgent.com.atproto.identity.signPlcOperation,
-    ).mockResolvedValue(
-      // @ts-expect-error
-      {
-        data: { operation: 'signed-operation' },
-      },
+    vi.mocked(oldAgent.com.atproto.identity.signPlcOperation).mockResolvedValue(
+      makeXrpcResponse({ operation: 'signed-operation' }),
     );
 
     const result = await migrateIdentity(
-      { fromAgent: fromAgent, toAgent: toAgent, accountDid: mockAccountDid },
+      { oldAgent: oldAgent, newAgent: newAgent, accountDid: mockAccountDid },
       mockToken,
     );
 
     expect(
-      fromAgent.com.atproto.identity.requestPlcOperationSignature,
+      oldAgent.com.atproto.identity.requestPlcOperationSignature,
     ).toHaveBeenCalled();
     expect(
-      toAgent.com.atproto.identity.getRecommendedDidCredentials,
+      newAgent.com.atproto.identity.getRecommendedDidCredentials,
     ).toHaveBeenCalled();
+    expect(oldAgent.com.atproto.identity.signPlcOperation).toHaveBeenCalledWith(
+      {
+        token: mockToken,
+        rotationKeys: [mockDid, 'existing-key'],
+      },
+    );
     expect(
-      fromAgent.com.atproto.identity.signPlcOperation,
-    ).toHaveBeenCalledWith({
-      token: mockToken,
-      rotationKeys: [mockDid, 'existing-key'],
-    });
-    expect(
-      toAgent.com.atproto.identity.submitPlcOperation,
+      newAgent.com.atproto.identity.submitPlcOperation,
     ).toHaveBeenCalledWith({
       operation: 'signed-operation',
     });
@@ -68,8 +60,8 @@ describe('migrateIdentity', () => {
   });
 
   it('should throw error if no rotation keys provided', async () => {
-    const fromAgent = makeMockAgent();
-    const toAgent = makeMockAgent();
+    const oldAgent = makeMockAgent();
+    const newAgent = makeMockAgent();
 
     // @ts-expect-error
     vi.mocked(Secp256k1Keypair.create).mockResolvedValue({
@@ -78,17 +70,12 @@ describe('migrateIdentity', () => {
     });
 
     vi.mocked(
-      toAgent.com.atproto.identity.getRecommendedDidCredentials,
-    ).mockResolvedValue(
-      // @ts-expect-error
-      {
-        data: {},
-      },
-    );
+      newAgent.com.atproto.identity.getRecommendedDidCredentials,
+    ).mockResolvedValue(makeXrpcResponse({}));
 
     await expect(
       migrateIdentity(
-        { fromAgent: fromAgent, toAgent: toAgent, accountDid: mockAccountDid },
+        { oldAgent: oldAgent, newAgent: newAgent, accountDid: mockAccountDid },
         'token',
       ),
     ).rejects.toThrow('No rotation key provided');

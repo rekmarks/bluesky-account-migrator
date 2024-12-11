@@ -14,32 +14,32 @@ vi.mock('@atproto/api', () => ({
 describe('initializeAgents', () => {
   it('should initialize and authenticate agents successfully', async () => {
     const mockCredentials = makeMockCredentials();
-    const fromAgent = makeMockAgent(mockAccountDid);
-    const toAgent = makeMockAgent();
+    const oldAgent = makeMockAgent(mockAccountDid);
+    const newAgent = makeMockAgent();
 
     vi.mocked(AtpAgent)
-      .mockImplementationOnce(() => fromAgent)
-      .mockImplementationOnce(() => toAgent);
+      .mockImplementationOnce(() => oldAgent)
+      .mockImplementationOnce(() => newAgent);
 
     const result = await initializeAgents(mockCredentials);
 
-    expect(fromAgent.login).toHaveBeenCalledWith({
-      identifier: mockCredentials.fromHandle,
-      password: mockCredentials.fromPassword,
+    expect(oldAgent.login).toHaveBeenCalledWith({
+      identifier: mockCredentials.oldHandle,
+      password: mockCredentials.oldPassword,
     });
     expect(result.accountDid).toBe(mockAccountDid);
-    expect(result.fromAgent).toBe(fromAgent);
-    expect(result.toAgent).toBe(toAgent);
+    expect(result.oldAgent).toBe(oldAgent);
+    expect(result.newAgent).toBe(newAgent);
   });
 
   it('should throw error if DID is not available after login', async () => {
     const mockCredentials = makeMockCredentials();
-    const fromAgent = makeMockAgent(); // no DID provided
-    const toAgent = makeMockAgent();
+    const oldAgent = makeMockAgent(); // no DID provided
+    const newAgent = makeMockAgent();
 
     vi.mocked(AtpAgent)
-      .mockImplementationOnce(() => fromAgent)
-      .mockImplementationOnce(() => toAgent);
+      .mockImplementationOnce(() => oldAgent)
+      .mockImplementationOnce(() => newAgent);
 
     await expect(initializeAgents(mockCredentials)).rejects.toThrow(
       'Could not get DID for old account',

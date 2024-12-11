@@ -1,18 +1,29 @@
 import type { Argv, CommandModule } from 'yargs';
+import { handleMigrateInteractive } from './handler.js';
 
-type MigrateArgs = { universe: boolean };
+type Mode = 'interactive' | 'i';
 
-export const migrateCommand: CommandModule<{}, MigrateArgs> = {
-  command: ['migrate', 'm'],
-  describe: 'Say hello',
+export type MigrateOptions = {
+  mode: Mode;
+};
+
+export const migrateCommand: CommandModule<{}, MigrateOptions> = {
+  command: 'migrate <mode>',
+  aliases: ['m'],
+  describe: 'Perform a migration',
   builder: (yarg: Argv) => {
-    return yarg.option('universe', {
-      alias: 'u',
-      desc: 'Say hello to the universe',
-      type: 'boolean',
-    }) as Argv<MigrateArgs>;
+    return yarg.positional('mode', {
+      describe: 'Run in interactive mode',
+      type: 'string',
+      default: 'interactive',
+      choices: ['interactive', 'i'],
+    }) as Argv<{ mode: Mode }>;
   },
   handler: async (argv) => {
-    console.log('Hello, migration!');
+    if (argv.mode.startsWith('i')) {
+      await handleMigrateInteractive();
+    } else {
+      throw new Error('Not yet implemented');
+    }
   },
 };

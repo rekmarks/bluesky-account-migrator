@@ -7,7 +7,6 @@ describe('index', () => {
     expect(Object.keys(index.migration).sort()).toStrictEqual([
       'Migration',
       'MigrationState',
-      'MigrationStateNames',
       'operations',
       'transitionMap',
     ]);

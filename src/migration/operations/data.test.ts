@@ -1,64 +1,61 @@
+import type { AppBskyActorGetPreferences } from '@atproto/api';
 import { describe, it, expect, vi } from 'vitest';
 import { migrateData } from './data.js';
-import { mockAccountDid, makeMockAgent } from '../../../test/utils.js';
+import {
+  mockAccountDid,
+  makeMockAgent,
+  makeXrpcResponse,
+} from '../../../test/utils.js';
 
 describe('migrateData', () => {
   it('should migrate repo, blobs, and preferences', async () => {
-    const fromAgent = makeMockAgent(mockAccountDid);
-    const toAgent = makeMockAgent();
+    const oldAgent = makeMockAgent(mockAccountDid);
+    const newAgent = makeMockAgent();
 
-    const mockRepoData = {
-      /* mock CAR data */
-    };
+    const mockRepoData = new Uint8Array();
     const mockPreferences = {
-      data: {
-        /* mock preferences */
-      },
-    };
+      preferences: {},
+    } as unknown as AppBskyActorGetPreferences.OutputSchema;
     const mockBlobData = { data: new Uint8Array() };
 
-    vi.mocked(fromAgent.com.atproto.sync.getRepo).mockResolvedValue({
-      // @ts-expect-error
-      data: mockRepoData,
-    });
-    vi.mocked(fromAgent.app.bsky.actor.getPreferences).mockResolvedValue(
-      // @ts-expect-error
-      mockPreferences,
+    vi.mocked(oldAgent.com.atproto.sync.getRepo).mockResolvedValue(
+      makeXrpcResponse(mockRepoData),
     );
-    vi.mocked(fromAgent.com.atproto.sync.listBlobs).mockResolvedValue({
-      // @ts-expect-error
-      data: {
+    vi.mocked(oldAgent.app.bsky.actor.getPreferences).mockResolvedValue(
+      makeXrpcResponse(mockPreferences),
+    );
+    vi.mocked(oldAgent.com.atproto.sync.listBlobs).mockResolvedValue(
+      makeXrpcResponse({
         cids: ['cid1', 'cid2'],
-        cursor: undefined,
-      },
-    });
-    // @ts-expect-error
-    vi.mocked(fromAgent.com.atproto.sync.getBlob).mockResolvedValue({
-      data: mockBlobData.data,
-      headers: { 'content-type': 'image/jpeg' },
-    });
+        cursor: '',
+      }),
+    );
+
+    vi.mocked(oldAgent.com.atproto.sync.getBlob).mockResolvedValue(
+      makeXrpcResponse(mockBlobData.data, { 'content-type': 'image/jpeg' }),
+    );
 
     await migrateData({
-      fromAgent: fromAgent,
-      toAgent: toAgent,
+      oldAgent: oldAgent,
+      newAgent: newAgent,
       accountDid: mockAccountDid,
     });
 
-    expect(fromAgent.com.atproto.sync.getRepo).toHaveBeenCalledWith({
+    expect(oldAgent.com.atproto.sync.getRepo).toHaveBeenCalledWith({
       did: mockAccountDid,
     });
-    expect(toAgent.com.atproto.repo.importRepo).toHaveBeenCalledWith(
+    expect(newAgent.com.atproto.repo.importRepo).toHaveBeenCalledWith(
       mockRepoData,
       { encoding: 'application/vnd.ipld.car' },
     );
 
-    expect(fromAgent.com.atproto.sync.listBlobs).toHaveBeenCalledWith({
+    expect(oldAgent.com.atproto.sync.listBlobs).toHaveBeenCalledWith({
       did: mockAccountDid,
     });
 
-    expect(toAgent.com.atproto.repo.uploadBlob).toHaveBeenCalledTimes(2);
-    expect(toAgent.app.bsky.actor.putPreferences).toHaveBeenCalledWith(
-      mockPreferences.data,
+    expect(newAgent.com.atproto.repo.uploadBlob).toHaveBeenCalledTimes(2);
+    expect(newAgent.app.bsky.actor.putPreferences).toHaveBeenCalledWith(
+      mockPreferences,
     );
   });
 });

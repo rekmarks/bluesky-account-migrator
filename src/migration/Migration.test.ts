@@ -4,8 +4,8 @@ import type { AgentPair, MigrationCredentials } from './types.js';
 import { makeMockCredentials } from '../../test/utils.js';
 
 const mockAgentPair: AgentPair = {
-  fromAgent: {},
-  toAgent: {},
+  oldAgent: {},
+  newAgent: {},
   accountDid: 'did:plc:test123',
 } as unknown as AgentPair;
 
@@ -36,7 +36,7 @@ describe('Migration', () => {
     it('initializes with default state', () => {
       const migration = new Migration({ credentials: mockCredentials });
       expect(migration.accountDid).toBeUndefined();
-      expect(migration.toAccountPrivateKey).toBeUndefined();
+      expect(migration.newPrivateKey).toBeUndefined();
     });
 
     it('accepts initial state', () => {
@@ -82,7 +82,7 @@ describe('Migration', () => {
       expect(mockTransitions[MigrationState.Finalized]).not.toHaveBeenCalled();
 
       // Verify final state
-      expect(migration.toAccountPrivateKey).toBe(mockPrivateKey);
+      expect(migration.newPrivateKey).toBe(mockPrivateKey);
     });
 
     it('runs migration from the Initialized state', async () => {
@@ -110,7 +110,7 @@ describe('Migration', () => {
         mockTransitions[MigrationState.MigratedData],
       ).not.toHaveBeenCalled();
 
-      migration.setConfirmationToken(mockToken);
+      migration.confirmationToken = mockToken;
       expect(await migration.run()).toBe(MigrationState.Finalized);
     });
 
@@ -126,26 +126,26 @@ describe('Migration', () => {
       );
 
       await expect(migration.run()).rejects.toThrow(
-        'Migration failed during "0: Ready": Transition returned invalid result of type "string"',
+        'Migration failed during "Ready": Transition returned invalid result of type "string"',
       );
     });
   });
 
   describe('setters', () => {
-    it('setAgents updates agents in params', () => {
+    it('setting agents updates agents in params', () => {
       const migration = new Migration({ credentials: mockCredentials });
-      migration.setAgents(mockAgentPair);
+      migration.agents = mockAgentPair;
       expect(migration.accountDid).toBe(mockAgentPair.accountDid);
     });
 
-    it('setConfirmationToken updates token in params', async () => {
+    it('setting confirmationToken updates token in params', async () => {
       const migration = new Migration(
         { credentials: mockCredentials, agents: mockAgentPair },
         MigrationState.MigratedData,
         mockTransitions,
       );
 
-      migration.setConfirmationToken(mockToken);
+      migration.confirmationToken = mockToken;
       await migration.run();
 
       expect(mockTransitions[MigrationState.MigratedData]).toHaveBeenCalledWith(

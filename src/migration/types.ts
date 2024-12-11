@@ -1,19 +1,19 @@
 import type { AtpAgent } from '@atproto/api';
 
 export type MigrationCredentials = {
-  fromPdsUrl: string;
-  toPdsUrl: string;
-  fromHandle: string;
-  fromPassword: string;
-  toHandle: string;
-  toEmail: string;
-  toPassword: string;
+  oldPdsUrl: string;
+  newPdsUrl: string;
+  oldHandle: string;
+  oldPassword: string;
+  newHandle: string;
+  newEmail: string;
+  newPassword: string;
   inviteCode: string;
 };
 
 export type AgentPair = {
-  fromAgent: AtpAgent;
-  toAgent: AtpAgent;
+  oldAgent: AtpAgent;
+  newAgent: AtpAgent;
   accountDid: string;
 };
 

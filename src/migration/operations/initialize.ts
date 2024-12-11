@@ -4,18 +4,18 @@ import type { MigrationCredentials, AgentPair } from '../types.js';
 export async function initializeAgents(
   credentials: MigrationCredentials,
 ): Promise<AgentPair> {
-  const fromAgent = new AtpAgent({ service: credentials.fromPdsUrl });
-  const toAgent = new AtpAgent({ service: credentials.toPdsUrl });
+  const oldAgent = new AtpAgent({ service: credentials.oldPdsUrl });
+  const newAgent = new AtpAgent({ service: credentials.newPdsUrl });
 
-  await fromAgent.login({
-    identifier: credentials.fromHandle,
-    password: credentials.fromPassword,
+  await oldAgent.login({
+    identifier: credentials.oldHandle,
+    password: credentials.oldPassword,
   });
 
-  const accountDid = fromAgent.session?.did;
+  const accountDid = oldAgent.session?.did;
   if (!accountDid) {
     throw new Error('Could not get DID for old account');
   }
 
-  return { fromAgent, toAgent, accountDid };
+  return { oldAgent, newAgent, accountDid };
 }
