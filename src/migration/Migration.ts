@@ -41,67 +41,54 @@ type TransitionResult<S extends MigrationState> = Promise<{
 }>;
 
 type StateMachineConfig = {
-  [S in MigrationState]: {
-    transition: (data: StateData[S]) => TransitionResult<S>;
-  };
+  [S in MigrationState]: (data: StateData[S]) => TransitionResult<S>;
 };
 
 const stateMachineConfig: StateMachineConfig = {
-  [MigrationState.Ready]: {
-    transition: async ({ credentials }) => {
-      const agents = await operations.initializeAgents({ credentials });
-      return {
-        nextState: MigrationState.Initialized,
-        data: { credentials, agents },
-      };
-    },
+  [MigrationState.Ready]: async ({ credentials }) => {
+    const agents = await operations.initializeAgents({ credentials });
+    return {
+      nextState: MigrationState.Initialized,
+      data: { credentials, agents },
+    };
   },
-  [MigrationState.Initialized]: {
-    transition: async ({ credentials, agents }) => {
-      await operations.createNewAccount({ agents, credentials });
-      return {
-        nextState: MigrationState.NewAccount,
-      };
-    },
+  [MigrationState.Initialized]: async ({ credentials, agents }) => {
+    await operations.createNewAccount({ agents, credentials });
+    return {
+      nextState: MigrationState.NewAccount,
+    };
   },
-  [MigrationState.NewAccount]: {
-    transition: async ({ agents }) => {
-      await operations.migrateData(agents);
+  [MigrationState.NewAccount]: async ({ agents }) => {
+    await operations.migrateData(agents);
+    return {
+      nextState: MigrationState.MigratedData,
+    };
+  },
+  [MigrationState.MigratedData]: async (params) => {
+    const { agents, credentials, confirmationToken } = params;
+    if (!confirmationToken) {
       return {
         nextState: MigrationState.MigratedData,
       };
-    },
-  },
-  [MigrationState.MigratedData]: {
-    transition: async ({ credentials, agents, confirmationToken }) => {
-      if (!confirmationToken) {
-        return {
-          nextState: MigrationState.MigratedData,
-        };
-      }
+    }
 
-      const newPrivateKey = await operations.migrateIdentity(
-        agents,
-        confirmationToken,
-      );
-      return {
-        nextState: MigrationState.MigratedIdentity,
-        data: { credentials, agents, confirmationToken, newPrivateKey },
-      };
-    },
+    const newPrivateKey = await operations.migrateIdentity(
+      agents,
+      confirmationToken,
+    );
+    return {
+      nextState: MigrationState.MigratedIdentity,
+      data: { credentials, agents, confirmationToken, newPrivateKey },
+    };
   },
-  [MigrationState.MigratedIdentity]: {
-    transition: async ({ agents }) => {
-      await operations.finalizeMigration(agents);
-      return {
-        nextState: MigrationState.Finalized,
-      };
-    },
+  [MigrationState.MigratedIdentity]: async ({ agents }) => {
+    await operations.finalizeMigration(agents);
+    return {
+      nextState: MigrationState.Finalized,
+    };
   },
-  [MigrationState.Finalized]: {
-    transition: async (_data) => {
-      throw new Error('Cannot transition from Finalized state');
-    },
+  [MigrationState.Finalized]: async (_data) => {
+    throw new Error('Cannot transition from Finalized state');
   },
 };
 
@@ -144,7 +131,7 @@ export class Migration {
 
       const config = stateMachineConfig[this.#state];
       // @ts-expect-error TypeScript can't know whether this.#data is a valid parameter.
-      const result = await config.transition(this.#data);
+      const result = await config(this.#data);
       this.#state = result.nextState;
       if (result.data !== undefined) {
         this.#data = {
