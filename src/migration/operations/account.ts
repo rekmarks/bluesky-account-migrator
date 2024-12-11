@@ -1,24 +1,29 @@
 import type { MigrationCredentials, AgentPair } from '../types.js';
 
-export async function createNewAccount(
-  { oldAgent, newAgent, accountDid }: AgentPair,
-  credentials: MigrationCredentials,
-): Promise<void> {
-  const describeRes = await newAgent.com.atproto.server.describeServer();
+export async function createNewAccount({
+  agents,
+  credentials,
+}: {
+  agents: AgentPair;
+  credentials: MigrationCredentials;
+}): Promise<void> {
+  const describeRes = await agents.newAgent.com.atproto.server.describeServer();
   const newServerDid = describeRes.data.did;
 
-  const serviceJwtRes = await oldAgent.com.atproto.server.getServiceAuth({
-    aud: newServerDid,
-    lxm: 'com.atproto.server.createAccount',
-  });
+  const serviceJwtRes = await agents.oldAgent.com.atproto.server.getServiceAuth(
+    {
+      aud: newServerDid,
+      lxm: 'com.atproto.server.createAccount',
+    },
+  );
   const serviceJwt = serviceJwtRes.data.token;
 
-  await newAgent.com.atproto.server.createAccount(
+  await agents.newAgent.com.atproto.server.createAccount(
     {
       handle: credentials.newHandle,
       email: credentials.newEmail,
       password: credentials.newPassword,
-      did: accountDid,
+      did: agents.accountDid,
       inviteCode: credentials.inviteCode,
     },
     {
@@ -27,7 +32,7 @@ export async function createNewAccount(
     },
   );
 
-  await newAgent.login({
+  await agents.newAgent.login({
     identifier: credentials.newHandle,
     password: credentials.newPassword,
   });

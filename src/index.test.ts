@@ -8,7 +8,6 @@ describe('index', () => {
       'Migration',
       'MigrationState',
       'operations',
-      'transitionMap',
     ]);
   });
 });

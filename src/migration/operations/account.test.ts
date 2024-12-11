@@ -22,10 +22,10 @@ describe('createNewAccount', () => {
       makeXrpcResponse({ token: 'jwt-token-123' }),
     );
 
-    await createNewAccount(
-      { oldAgent: oldAgent, newAgent: newAgent, accountDid: mockAccountDid },
-      mockCredentials,
-    );
+    await createNewAccount({
+      agents: { oldAgent, newAgent, accountDid: mockAccountDid },
+      credentials: mockCredentials,
+    });
 
     expect(oldAgent.com.atproto.server.getServiceAuth).toHaveBeenCalledWith({
       aud: newServerDid,

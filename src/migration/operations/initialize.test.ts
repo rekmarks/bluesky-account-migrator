@@ -21,7 +21,7 @@ describe('initializeAgents', () => {
       .mockImplementationOnce(() => oldAgent)
       .mockImplementationOnce(() => newAgent);
 
-    const result = await initializeAgents(mockCredentials);
+    const result = await initializeAgents({ credentials: mockCredentials });
 
     expect(oldAgent.login).toHaveBeenCalledWith({
       identifier: mockCredentials.oldHandle,
@@ -41,8 +41,8 @@ describe('initializeAgents', () => {
       .mockImplementationOnce(() => oldAgent)
       .mockImplementationOnce(() => newAgent);
 
-    await expect(initializeAgents(mockCredentials)).rejects.toThrow(
-      'Could not get DID for old account',
-    );
+    await expect(
+      initializeAgents({ credentials: mockCredentials }),
+    ).rejects.toThrow('Failed to get DID for old account');
   });
 });
