@@ -1,1 +1,3 @@
-export const hello = (message = 'world') => `Hello, ${message}!`;
+import * as migration from './migration/index.js';
+
+export { migration };

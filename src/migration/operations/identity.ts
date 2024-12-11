@@ -1,0 +1,37 @@
+import { Secp256k1Keypair } from '@atproto/crypto';
+import { toString as uint8ArrayToString } from 'uint8arrays/to-string';
+import type { AgentPair, PlcOperationParams } from '../types.js';
+
+export async function migrateIdentity(
+  { fromAgent, toAgent }: AgentPair,
+  token: string,
+): Promise<string> {
+  const recoveryKey = await Secp256k1Keypair.create({ exportable: true });
+  const privateKeyBytes = await recoveryKey.export();
+  const privateKey = uint8ArrayToString(privateKeyBytes, 'hex');
+
+  await fromAgent.com.atproto.identity.requestPlcOperationSignature();
+
+  const getDidCredentials =
+    await toAgent.com.atproto.identity.getRecommendedDidCredentials();
+  const rotationKeys = getDidCredentials.data.rotationKeys ?? [];
+  if (!getDidCredentials.data.rotationKeys) {
+    throw new Error('No rotation key provided');
+  }
+
+  const credentials: PlcOperationParams = {
+    ...getDidCredentials.data,
+    rotationKeys: [recoveryKey.did(), ...rotationKeys],
+    token,
+  };
+
+  const plcOp = await fromAgent.com.atproto.identity.signPlcOperation({
+    ...credentials,
+  });
+
+  await toAgent.com.atproto.identity.submitPlcOperation({
+    operation: plcOp.data.operation,
+  });
+
+  return privateKey;
+}

@@ -40,7 +40,7 @@ const migrateAccount = async () => {
   // Create account
   // ------------------
 
-  const describeRes = await newAgent.api.com.atproto.server.describeServer();
+  const describeRes = await newAgent.com.atproto.server.describeServer();
   const newServerDid = describeRes.data.did;
 
   const serviceJwtRes = await oldAgent.com.atproto.server.getServiceAuth({
@@ -49,7 +49,7 @@ const migrateAccount = async () => {
   });
   const serviceJwt = serviceJwtRes.data.token;
 
-  await newAgent.api.com.atproto.server.createAccount(
+  await newAgent.com.atproto.server.createAccount(
     {
       handle: NEW_HANDLE,
       email: NEW_ACCOUNT_EMAIL,
@@ -93,8 +93,8 @@ const migrateAccount = async () => {
     blobCursor = listedBlobs.data.cursor;
   } while (blobCursor);
 
-  const prefs = await oldAgent.api.app.bsky.actor.getPreferences();
-  await newAgent.api.app.bsky.actor.putPreferences(prefs.data);
+  const prefs = await oldAgent.app.bsky.actor.getPreferences();
+  await newAgent.app.bsky.actor.putPreferences(prefs.data);
 
   // Migrate Identity
   // ------------------
@@ -103,6 +103,8 @@ const migrateAccount = async () => {
   const privateKeyBytes = await recoveryKey.export();
   const privateKey = ui8.toString(privateKeyBytes, 'hex');
 
+  // @NOTE: this creates an email challenge on the old PDS, which ultimately results in
+  // the acquisition of a "confirmation token" used to complete the migration.
   await oldAgent.com.atproto.identity.requestPlcOperationSignature();
 
   const getDidCredentials =
@@ -116,7 +118,7 @@ const migrateAccount = async () => {
     rotationKeys: [recoveryKey.did(), ...rotationKeys],
   };
 
-  // @NOTE, this token will need to come from the email from the previous step
+  // @NOTE: this token will need to come from the email from the previous step
   const TOKEN = '';
 
   const plcOp = await oldAgent.com.atproto.identity.signPlcOperation({
