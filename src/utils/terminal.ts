@@ -22,7 +22,7 @@ export const logWarning = (message: string) => {
 
 export const logWelcome = () => {
   console.log(
-    boxen('Welcome to the Bluesky account migration tool', {
+    boxen('Welcome to the Bluesky account migration tool!', {
       padding: 1,
       borderColor: 'blue',
       title: '🦋',
