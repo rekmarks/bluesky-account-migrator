@@ -5,6 +5,11 @@ import { Migration, MigrationState } from '../../migration/index.js';
 import { handleMigrateInteractive } from './handler.js';
 import { input } from './prompts.js';
 
+vi.mock('../../utils/index.js', async (importOriginal) => ({
+  ...(await importOriginal()),
+  logWrapped: (message: string) => console.log(message),
+}));
+
 vi.mock('./prompts.js', () => ({
   input: vi.fn(),
 }));
@@ -63,14 +68,19 @@ describe('handleMigrateInteractive', () => {
     expect(vi.mocked(Migration).mock.instances[0]?.confirmationToken).toBe(
       mockToken,
     );
-    expect(logSpy).toHaveBeenCalledWith(
-      '🦋 Welcome to the Bluesky account migration tool 🦋',
+    expect(vi.mocked(Migration).mock.instances[0]?.newPrivateKey).toBe(
+      mockPrivateKey,
     );
     expect(logSpy).toHaveBeenCalledWith(
-      `Your private key is:\n${mockPrivateKey}\n`,
+      expect.stringContaining('Migration completed successfully! ✅'),
     );
     expect(logSpy).toHaveBeenCalledWith(
-      `Thank you for using the Bluesky account migration tool 🙇`,
+      expect.stringContaining(mockPrivateKey),
+    );
+    expect(logSpy).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'Thank you for using the Bluesky account migration tool 🙇',
+      ),
     );
   });
 });
