@@ -78,6 +78,6 @@ describe('migrateIdentity', () => {
         { oldAgent: oldAgent, newAgent: newAgent, accountDid: mockAccountDid },
         'token',
       ),
-    ).rejects.toThrow('No rotation key provided');
+    ).rejects.toThrow('New PDS did not provide any rotation keys');
   });
 });

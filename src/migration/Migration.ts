@@ -101,7 +101,7 @@ export class Migration {
     initialState: MigrationState = MigrationState.Ready,
   ) {
     this.#state = initialState;
-    this.#data = initialData as StateData[MigrationState];
+    this.#data = initialData;
   }
 
   get accountDid() {

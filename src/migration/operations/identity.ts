@@ -16,18 +16,17 @@ export async function migrateIdentity(
     await newAgent.com.atproto.identity.getRecommendedDidCredentials();
   const rotationKeys = getDidCredentials.data.rotationKeys ?? [];
   if (!getDidCredentials.data.rotationKeys) {
-    throw new Error('No rotation key provided');
+    throw new Error('New PDS did not provide any rotation keys');
   }
 
-  const credentials: PlcOperationParams = {
+  const plcCredentials: PlcOperationParams = {
     ...getDidCredentials.data,
     rotationKeys: [recoveryKey.did(), ...rotationKeys],
     token,
   };
 
-  const plcOp = await oldAgent.com.atproto.identity.signPlcOperation({
-    ...credentials,
-  });
+  const plcOp =
+    await oldAgent.com.atproto.identity.signPlcOperation(plcCredentials);
 
   await newAgent.com.atproto.identity.submitPlcOperation({
     operation: plcOp.data.operation,

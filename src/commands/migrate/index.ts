@@ -8,7 +8,7 @@ export type MigrateOptions = {
 };
 
 export const migrateCommand: CommandModule<{}, MigrateOptions> = {
-  command: 'migrate <mode>',
+  command: 'migrate [mode]',
   aliases: ['m'],
   describe: 'Perform a migration',
   builder: (yarg: Argv) => {
