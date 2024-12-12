@@ -55,7 +55,7 @@ describe('handleMigrateInteractive', () => {
 
     mockPrivateKey = 'foo';
     runMock
-      .mockResolvedValueOnce(MigrationState.MigratedData)
+      .mockResolvedValueOnce(MigrationState.RequestedPlcOperation)
       .mockResolvedValueOnce(MigrationState.Finalized);
 
     await handleMigrateInteractive();

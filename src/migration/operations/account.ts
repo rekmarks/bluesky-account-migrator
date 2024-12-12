@@ -1,5 +1,12 @@
 import type { MigrationCredentials, AgentPair } from '../types.js';
 
+/**
+ * Create a new account on the new PDS and login to it.
+ *
+ * @param options - Options bag.
+ * @param options.agents - The agent pair.
+ * @param options.credentials - The credentials.
+ */
 export async function createNewAccount({
   agents,
   credentials,

@@ -40,9 +40,6 @@ describe('migrateIdentity', () => {
     );
 
     expect(
-      oldAgent.com.atproto.identity.requestPlcOperationSignature,
-    ).toHaveBeenCalled();
-    expect(
       newAgent.com.atproto.identity.getRecommendedDidCredentials,
     ).toHaveBeenCalled();
     expect(oldAgent.com.atproto.identity.signPlcOperation).toHaveBeenCalledWith(

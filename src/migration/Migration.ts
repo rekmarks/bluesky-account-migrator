@@ -1,4 +1,3 @@
-import { isObject, stringify } from '../utils.js';
 import * as operations from './operations/index.js';
 import type { AgentPair, MigrationCredentials } from './types.js';
 
@@ -7,32 +6,34 @@ export enum MigrationState {
   Initialized = 'Initialized',
   NewAccount = 'NewAccount',
   MigratedData = 'MigratedData',
+  RequestedPlcOperation = 'RequestedPlcOperation',
   MigratedIdentity = 'MigratedIdentity',
   Finalized = 'Finalized',
 }
 
-type ReadyStateData = {
+type BaseData = {
   credentials: MigrationCredentials;
   agents?: AgentPair;
   confirmationToken?: string;
 };
 
-type InitializedStateData = ReadyStateData & {
+type InitializedData = BaseData & {
   agents: AgentPair;
 };
 
-type MigratedIdentityStateData = InitializedStateData & {
+type FinalData = InitializedData & {
   confirmationToken: string;
   newPrivateKey: string;
 };
 
 type StateData = {
-  [MigrationState.Ready]: ReadyStateData;
-  [MigrationState.Initialized]: InitializedStateData;
-  [MigrationState.NewAccount]: InitializedStateData;
-  [MigrationState.MigratedData]: InitializedStateData;
-  [MigrationState.MigratedIdentity]: MigratedIdentityStateData;
-  [MigrationState.Finalized]: MigratedIdentityStateData;
+  [MigrationState.Ready]: BaseData;
+  [MigrationState.Initialized]: InitializedData;
+  [MigrationState.NewAccount]: InitializedData;
+  [MigrationState.MigratedData]: InitializedData;
+  [MigrationState.RequestedPlcOperation]: InitializedData;
+  [MigrationState.MigratedIdentity]: FinalData;
+  [MigrationState.Finalized]: FinalData;
 };
 
 type TransitionResult<S extends MigrationState> = Promise<{
@@ -64,11 +65,17 @@ const stateMachineConfig: StateMachineConfig = {
       nextState: MigrationState.MigratedData,
     };
   },
-  [MigrationState.MigratedData]: async (params) => {
+  [MigrationState.MigratedData]: async ({ agents }) => {
+    await operations.requestPlcOperation(agents);
+    return {
+      nextState: MigrationState.RequestedPlcOperation,
+    };
+  },
+  [MigrationState.RequestedPlcOperation]: async (params) => {
     const { agents, credentials, confirmationToken } = params;
     if (!confirmationToken) {
       return {
-        nextState: MigrationState.MigratedData,
+        nextState: MigrationState.RequestedPlcOperation,
       };
     }
 
@@ -97,7 +104,7 @@ export class Migration {
   #data: StateData[MigrationState];
 
   constructor(
-    initialData: ReadyStateData,
+    initialData: BaseData,
     initialState: MigrationState = MigrationState.Ready,
   ) {
     this.#state = initialState;
@@ -123,7 +130,7 @@ export class Migration {
   async run(): Promise<MigrationState> {
     while (this.#state !== MigrationState.Finalized) {
       if (
-        this.#state === MigrationState.MigratedData &&
+        this.#state === MigrationState.RequestedPlcOperation &&
         !('confirmationToken' in this.#data)
       ) {
         break;

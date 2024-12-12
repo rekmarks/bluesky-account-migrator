@@ -7,7 +7,7 @@ export const isObject = (
  * @param value - The value to check.
  * @returns Whether the value is a valid HTTP or HTTPS URL.
  */
-export const isUrl = (value: unknown): boolean => {
+export const isHttpUrl = (value: unknown): boolean => {
   if (typeof value !== 'string') {
     return false;
   }

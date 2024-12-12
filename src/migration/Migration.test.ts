@@ -8,6 +8,7 @@ vi.mock('./operations/index.js', () => ({
   initializeAgents: vi.fn(),
   createNewAccount: vi.fn(),
   migrateData: vi.fn(),
+  requestPlcOperation: vi.fn(),
   migrateIdentity: vi.fn(),
   finalizeMigration: vi.fn(),
 }));
@@ -92,13 +93,13 @@ describe('Migration', () => {
       expect(await migration.run()).toBe(MigrationState.Finalized);
     });
 
-    it('exits early if confirmation token is missing during MigratedData state', async () => {
+    it('exits early if confirmation token is missing during RequestedPlcOperation state', async () => {
       const migration = new Migration(
         { credentials: mockCredentials },
         MigrationState.Ready,
       );
 
-      expect(await migration.run()).toBe(MigrationState.MigratedData);
+      expect(await migration.run()).toBe(MigrationState.RequestedPlcOperation);
       expect(operations.migrateIdentity).not.toHaveBeenCalled();
 
       migration.confirmationToken = mockToken;

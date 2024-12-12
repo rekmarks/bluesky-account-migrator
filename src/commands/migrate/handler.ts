@@ -5,20 +5,27 @@ import { input } from './prompts.js';
 export async function handleMigrateInteractive(): Promise<void> {
   console.log('🦋 Welcome to the Bluesky account migration tool 🦋');
   console.log();
+  console.log('---- ⚠️ ----');
   console.log(
-    'NOTE: At the end of the migration process, ' +
+    'This is a community-maintained tool that has no affiliation with Bluesky. ' +
+      'Use at your own risk.',
+  );
+  console.log();
+  console.log(
+    'At the end of the migration process, ' +
       'this tool will print the private key of the new account to the console.',
   );
   console.log(
     'You MUST save this key in a secure location, ' +
       'or you could lose access to your account.',
   );
+  console.log('---- ⚠️ ----');
   console.log();
 
   const credentials = await getCredentialsInteractive();
   const migration = new Migration({ credentials });
   let result = await migration.run();
-  if (result !== MigrationState.MigratedData) {
+  if (result !== MigrationState.RequestedPlcOperation) {
     throw new Error(
       `Fatal: Unexpected migration state "${result}" after initial run. Please report this bug.`,
     );
