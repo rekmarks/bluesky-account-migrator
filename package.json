@@ -18,12 +18,14 @@
   "main": "dist/index.cjs",
   "type": "module",
   "bin": {
-    "bam": "dist/main.js"
+    "bam": "dist/main.mjs"
   },
   "scripts": {
-    "build": "ts-bridge --project tsconfig.build.json --verbose --clean --no-references",
-    "build:chmod": "chmod +x ./dist/main.mjs && chmod +x ./dist/main.js",
-    "build:post": "yarn build:chmod",
+    "build": "npm run build:ts-bridge && npm run build:chmod",
+    "build:test": "npm run build && npm run build:test:fakes",
+    "build:test:fakes": "esbuild ./test/FakeMigration.ts --bundle --outfile=./dist/migration/Migration.mjs --format=esm --target=es2022 --platform=node --packages=external",
+    "build:ts-bridge": "ts-bridge --project tsconfig.build.json --verbose --clean --no-references",
+    "build:chmod": "chmod +x ./dist/main.mjs && chmod +x ./dist/main.cjs",
     "lint": "prettier --check . && tsc --noEmit",
     "lint:fix": "prettier --write . && tsc --noEmit",
     "test": "vitest run"
@@ -43,17 +45,25 @@
     "url": "https://github.com/rekmarks/bluesky-account-migrator/issues"
   },
   "homepage": "https://github.com/rekmarks/bluesky-account-migrator#readme",
+  "dependencies": {
+    "@atproto/api": "^0.13.19",
+    "@atproto/crypto": "^0.4.2",
+    "@inquirer/prompts": "^7.2.0",
+    "boxen": "^8.0.1",
+    "uint8arrays": "^5.1.0",
+    "wrap-ansi": "^9.0.0",
+    "yargs": "^17.7.2",
+    "yoctocolors-cjs": "^2.1.2"
+  },
   "devDependencies": {
     "@ts-bridge/cli": "^0.6.1",
     "@tsconfig/node22": "^22.0.0",
     "@types/node": "^22.10.1",
     "@types/yargs": "^17.0.33",
+    "esbuild": "^0.24.0",
     "prettier": "^3.4.2",
     "typescript": "^5.7.2",
     "vite": "^5.4.11",
     "vitest": "^2.1.8"
-  },
-  "dependencies": {
-    "yargs": "^17.7.2"
   }
 }

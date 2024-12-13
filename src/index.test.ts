@@ -1,12 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import { hello } from './index.js';
+import * as index from './index.js';
 
-describe('hello', () => {
-  it('should say hello to the world', () => {
-    expect(hello()).toBe('Hello, world!');
-  });
-
-  it('should say hello to the universe', () => {
-    expect(hello('universe')).toBe('Hello, universe!');
+describe('index', () => {
+  it('should have the expected exports', () => {
+    expect(Object.keys(index).sort()).toStrictEqual([
+      'isHttpUrl',
+      'isValidHandle',
+      'migration',
+    ]);
+    expect(Object.keys(index.migration).sort()).toStrictEqual([
+      'Migration',
+      'MigrationState',
+      'operations',
+    ]);
   });
 });
