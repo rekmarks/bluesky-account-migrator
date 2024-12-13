@@ -8,7 +8,12 @@ import type { PickPublic } from '../src/utils/misc.js';
 
 export { MigrationState };
 
+const failureCondition = getFailureCondition();
+
 const mockAccountDid = 'did:plc:testuser123';
+
+const getStateIndex = (state: MigrationState) =>
+  Object.values(MigrationState).indexOf(state);
 
 export class Migration implements PickPublic<ActualMigration> {
   state: MigrationState = MigrationState.Ready;
@@ -32,10 +37,31 @@ export class Migration implements PickPublic<ActualMigration> {
     } else {
       this.state = MigrationState.Finalized;
     }
+    this.#maybeFail();
     return this.state;
+  }
+
+  #maybeFail() {
+    if (failureCondition) {
+      if (getStateIndex(this.state) >= getStateIndex(failureCondition)) {
+        this.state = failureCondition;
+        throw new Error(`Migration failed during state "${this.state}"`);
+      }
+    }
   }
 
   async teardown(): Promise<void> {
     this.state = MigrationState.Finalized;
   }
+}
+
+function getFailureCondition() {
+  const failureCondition = process.env.FAILURE_CONDITION ?? undefined;
+  if (failureCondition) {
+    if (failureCondition in MigrationState) {
+      return failureCondition as MigrationState;
+    }
+    throw new Error(`Invalid failure condition: ${failureCondition}`);
+  }
+  return undefined;
 }

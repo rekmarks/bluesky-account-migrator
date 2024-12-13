@@ -82,7 +82,7 @@ export async function getCredentialsInteractive(): Promise<
     newPassword,
   };
 
-  printCredentials(credentials);
+  logCredentials(credentials);
 
   const confirmResult = confirm({
     message: 'Perform the migration with these credentials?',
@@ -107,7 +107,7 @@ const credentialLabels = {
   newPassword: 'New password',
 } as const;
 
-function printCredentials(credentials: MigrationCredentials) {
+function logCredentials(credentials: MigrationCredentials) {
   const redacted = {
     ...credentials,
     oldPassword: '********',

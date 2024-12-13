@@ -131,6 +131,10 @@ export class Migration {
     return 'newPrivateKey' in this.#data ? this.#data.newPrivateKey : undefined;
   }
 
+  get state() {
+    return this.#state;
+  }
+
   set confirmationToken(token: string) {
     this.#data = { ...this.#data, confirmationToken: token };
   }
@@ -164,8 +168,9 @@ export class Migration {
           };
         }
       } catch (error) {
-        console.error(`Migration failed during state ${this.#state}.`);
-        throw error;
+        throw new Error(`Migration failed during state ${this.#state}.`, {
+          cause: error instanceof Error ? error : String(error),
+        });
       }
     }
 
