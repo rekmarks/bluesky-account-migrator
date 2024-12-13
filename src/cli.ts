@@ -12,6 +12,7 @@ export async function cli(argv: string[], commands: CommandModule<any, any>[]) {
     .demandCommand(1)
     .command(commands)
     .help()
+    .showHelpOnFail(false)
     .alias('help', 'h')
     .alias('version', 'v')
     .parseAsync();
