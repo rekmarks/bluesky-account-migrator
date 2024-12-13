@@ -34,4 +34,8 @@ export class Migration implements PickPublic<ActualMigration> {
     }
     return this.state;
   }
+
+  async teardown(): Promise<void> {
+    this.state = MigrationState.Finalized;
+  }
 }

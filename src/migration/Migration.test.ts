@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { makeMockCredentials } from '../../test/utils.js';
+import { makeMockCredentials, mockAccountDid } from '../../test/utils.js';
 import * as operations from './operations/index.js';
 import { Migration, MigrationState } from './Migration.js';
 import type { AgentPair, MigrationCredentials } from './types.js';
@@ -15,10 +15,16 @@ vi.mock('./operations/index.js', () => ({
 
 const makeMockAgents = (): AgentPair =>
   ({
-    oldAgent: {},
-    newAgent: {},
-    accountDid: 'did:plc:test123',
+    oldAgent: { logout: vi.fn() },
+    newAgent: { logout: vi.fn() },
+    accountDid: mockAccountDid,
   }) as unknown as AgentPair;
+
+const agentsMatcher = expect.objectContaining({
+  oldAgent: expect.objectContaining({ logout: expect.any(Function) }),
+  newAgent: expect.objectContaining({ logout: expect.any(Function) }),
+  accountDid: mockAccountDid,
+});
 
 const mockPrivateKey = 'mock-private-key';
 const mockToken = 'mock-token';
@@ -42,21 +48,18 @@ describe('Migration', () => {
     it('accepts initial state', () => {
       const migration = new Migration(
         { credentials: mockCredentials, agents: makeMockAgents() },
-        MigrationState.NewAccount,
+        MigrationState.CreatedNewAccount,
       );
-      expect(migration.accountDid).toBe(makeMockAgents().accountDid);
+      expect(migration.accountDid).toBe(mockAccountDid);
     });
   });
 
   describe('run', () => {
     it('executes all transitions in order', async () => {
-      const migration = new Migration(
-        {
-          credentials: mockCredentials,
-          confirmationToken: mockToken,
-        },
-        MigrationState.Ready,
-      );
+      const migration = new Migration({
+        credentials: mockCredentials,
+        confirmationToken: mockToken,
+      });
 
       expect(await migration.run()).toBe(MigrationState.Finalized);
 
@@ -65,35 +68,37 @@ describe('Migration', () => {
         credentials: mockCredentials,
       });
       expect(operations.createNewAccount).toHaveBeenCalledWith({
-        agents: makeMockAgents(),
+        agents: agentsMatcher,
         credentials: mockCredentials,
       });
-      expect(operations.migrateData).toHaveBeenCalledWith(makeMockAgents());
+      expect(operations.migrateData).toHaveBeenCalledWith(agentsMatcher);
       expect(operations.migrateIdentity).toHaveBeenCalledWith(
-        makeMockAgents(),
+        agentsMatcher,
         mockToken,
       );
-      expect(operations.finalizeMigration).toHaveBeenCalledWith(
-        makeMockAgents(),
-      );
+      expect(operations.finalizeMigration).toHaveBeenCalledWith(agentsMatcher);
 
       // Verify final state
       expect(migration.newPrivateKey).toBe(mockPrivateKey);
     });
 
-    it('runs migration from the Initialized state', async () => {
+    it('runs migration with given agents from Initialized state', async () => {
+      const agents = makeMockAgents();
       const migration = new Migration(
         {
           credentials: mockCredentials,
-          agents: makeMockAgents(),
+          agents,
           confirmationToken: mockToken,
         },
         MigrationState.Initialized,
       );
+
       expect(await migration.run()).toBe(MigrationState.Finalized);
+      expect(agents.oldAgent.logout).toHaveBeenCalled();
+      expect(agents.newAgent.logout).toHaveBeenCalled();
     });
 
-    it('exits early if confirmation token is missing during RequestedPlcOperation state', async () => {
+    it('stops and resumes if confirmation token is missing during RequestedPlcOperation state', async () => {
       const migration = new Migration(
         { credentials: mockCredentials },
         MigrationState.Ready,
@@ -108,12 +113,6 @@ describe('Migration', () => {
   });
 
   describe('setters', () => {
-    it('setting agents updates agents in params', () => {
-      const migration = new Migration({ credentials: mockCredentials });
-      migration.agents = makeMockAgents();
-      expect(migration.accountDid).toBe(makeMockAgents().accountDid);
-    });
-
     it('setting confirmationToken updates token in params', async () => {
       const migration = new Migration(
         { credentials: mockCredentials, agents: makeMockAgents() },
@@ -124,7 +123,7 @@ describe('Migration', () => {
       await migration.run();
 
       expect(operations.migrateIdentity).toHaveBeenCalledWith(
-        makeMockAgents(),
+        agentsMatcher,
         mockToken,
       );
     });

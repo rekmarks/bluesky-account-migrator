@@ -4,7 +4,7 @@ import type { AgentPair, MigrationCredentials } from './types.js';
 export enum MigrationState {
   Ready = 'Ready',
   Initialized = 'Initialized',
-  NewAccount = 'NewAccount',
+  CreatedNewAccount = 'CreatedNewAccount',
   MigratedData = 'MigratedData',
   RequestedPlcOperation = 'RequestedPlcOperation',
   MigratedIdentity = 'MigratedIdentity',
@@ -29,7 +29,7 @@ type FinalData = InitializedData & {
 type StateData = {
   [MigrationState.Ready]: BaseData;
   [MigrationState.Initialized]: InitializedData;
-  [MigrationState.NewAccount]: InitializedData;
+  [MigrationState.CreatedNewAccount]: InitializedData;
   [MigrationState.MigratedData]: InitializedData;
   [MigrationState.RequestedPlcOperation]: InitializedData;
   [MigrationState.MigratedIdentity]: FinalData;
@@ -56,10 +56,10 @@ const stateMachineConfig: StateMachineConfig = {
   [MigrationState.Initialized]: async ({ credentials, agents }) => {
     await operations.createNewAccount({ agents, credentials });
     return {
-      nextState: MigrationState.NewAccount,
+      nextState: MigrationState.CreatedNewAccount,
     };
   },
-  [MigrationState.NewAccount]: async ({ agents }) => {
+  [MigrationState.CreatedNewAccount]: async ({ agents }) => {
     await operations.migrateData(agents);
     return {
       nextState: MigrationState.MigratedData,
@@ -103,6 +103,18 @@ export class Migration {
   #state: MigrationState;
   #data: StateData[MigrationState];
 
+  get #agents() {
+    return 'agents' in this.#data ? this.#data.agents : undefined;
+  }
+
+  set #agents(agents: AgentPair | undefined) {
+    if (agents === undefined) {
+      delete this.#data.agents;
+    } else {
+      this.#data = { ...this.#data, agents };
+    }
+  }
+
   constructor(
     initialData: BaseData,
     initialState: MigrationState = MigrationState.Ready,
@@ -119,34 +131,60 @@ export class Migration {
     return 'newPrivateKey' in this.#data ? this.#data.newPrivateKey : undefined;
   }
 
-  set agents(agents: AgentPair) {
-    this.#data = { ...this.#data, agents };
-  }
-
   set confirmationToken(token: string) {
     this.#data = { ...this.#data, confirmationToken: token };
   }
 
+  /**
+   * Runs the migration state machine. Either runs to completion or stops and
+   * returns the current state if the migration is not ready to proceed.
+   *
+   * Calls {@link teardown} if the migration is finalized.
+   *
+   * @returns The current state of the migration.
+   */
   async run(): Promise<MigrationState> {
     while (this.#state !== MigrationState.Finalized) {
       if (
         this.#state === MigrationState.RequestedPlcOperation &&
         !('confirmationToken' in this.#data)
       ) {
-        break;
+        return this.#state;
       }
 
       const config = stateMachineConfig[this.#state];
-      // @ts-expect-error TypeScript can't know whether this.#data is a valid parameter.
-      const result = await config(this.#data);
-      this.#state = result.nextState;
-      if (result.data !== undefined) {
-        this.#data = {
-          ...this.#data,
-          ...result.data,
-        };
+      try {
+        // @ts-expect-error TypeScript can't know whether this.#data is a valid parameter.
+        const result = await config(this.#data);
+        this.#state = result.nextState;
+        if (result.data !== undefined) {
+          this.#data = {
+            ...this.#data,
+            ...result.data,
+          };
+        }
+      } catch (error) {
+        console.error(`Migration failed during state ${this.#state}.`);
+        throw error;
       }
     }
+
+    await this.teardown();
     return this.#state;
+  }
+
+  /**
+   * Sets state to Finalized and logs out the agents, if any. Idempotent.
+   */
+  async teardown() {
+    this.#state = MigrationState.Finalized;
+    const agents = this.#agents;
+    this.#agents = undefined;
+    if (agents) {
+      await Promise.allSettled([
+        agents.oldAgent.logout(),
+        agents.newAgent.logout(),
+      ]);
+    }
   }
 }
