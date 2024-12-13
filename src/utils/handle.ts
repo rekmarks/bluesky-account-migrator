@@ -1,9 +1,8 @@
 /**
  * Based on the referenced sources, the front portion of a Bluesky handle
  * must:
- * - Be a lowercase string consisting of alphanumerical characters and hyphens
- * - Start with a letter
- * - Be between 3 and 18 characters long
+ * - Be a lowercase string of alphanumerical characters and hyphens
+ * - Be between 3 and 63 characters long, inclusive
  * - Not start or end with a hyphen
  *
  * Refs:
@@ -11,4 +10,4 @@
  * - https://github.com/bluesky-social/atproto/blob/a940c3fceff7a03e434b12b4dc9ce71ceb3bb419/packages/pds/src/handle/index.ts
  */
 export const isValidHandle = (value: string): boolean =>
-  /^[a-z][a-z0-9-]{1,16}[a-z0-9]$/u.test(value);
+  /^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$/iu.test(value);
