@@ -13,12 +13,10 @@ export const isHttpUrl = (value: unknown): boolean => {
   }
 
   try {
-    const url = new URL(value);
-    if (typeof url.protocol === 'string' && url.protocol.startsWith('http')) {
-      return true;
-    }
-  } catch (_error) {}
-  return false;
+    return /^https?:$/u.test(new URL(value).protocol);
+  } catch (_error) {
+    return false;
+  }
 };
 
 export const stringify = (value: unknown) => JSON.stringify(value, null, 2);
