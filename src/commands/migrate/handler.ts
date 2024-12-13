@@ -23,7 +23,12 @@ export async function handleMigrateInteractive(): Promise<void> {
   `);
   console.log();
 
-  const { credentials, migration } = await initializeMigration();
+  const initResult = await initializeMigration();
+  if (!initResult) {
+    return;
+  }
+
+  const { credentials, migration } = initResult;
 
   console.log();
   console.log(
@@ -48,17 +53,24 @@ export async function handleMigrateInteractive(): Promise<void> {
   logPrivateKey(privateKey);
   console.log();
   logWarning(
-    `Please save this key in a secure location, or you could lose access to your account.`,
+    `You must save this key in a secure location, or you could lose access to your account.`,
   );
   console.log();
   logWrapped('Thank you for using the Bluesky account migration tool 🙇');
 }
 
-async function initializeMigration(): Promise<{
-  credentials: MigrationCredentials;
-  migration: Migration;
-}> {
+async function initializeMigration(): Promise<
+  | {
+      credentials: MigrationCredentials;
+      migration: Migration;
+    }
+  | undefined
+> {
   const credentials = await getCredentialsInteractive();
+  if (!credentials) {
+    return undefined;
+  }
+
   const migration = new Migration({ credentials });
   const result = await migration.run();
   if (result !== MigrationState.RequestedPlcOperation) {

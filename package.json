@@ -45,6 +45,16 @@
     "url": "https://github.com/rekmarks/bluesky-account-migrator/issues"
   },
   "homepage": "https://github.com/rekmarks/bluesky-account-migrator#readme",
+  "dependencies": {
+    "@atproto/api": "^0.13.19",
+    "@atproto/crypto": "^0.4.2",
+    "@inquirer/prompts": "^7.2.0",
+    "boxen": "^8.0.1",
+    "uint8arrays": "^5.1.0",
+    "wrap-ansi": "^9.0.0",
+    "yargs": "^17.7.2",
+    "yoctocolors-cjs": "^2.1.2"
+  },
   "devDependencies": {
     "@ts-bridge/cli": "^0.6.1",
     "@tsconfig/node22": "^22.0.0",
@@ -55,14 +65,5 @@
     "typescript": "^5.7.2",
     "vite": "^5.4.11",
     "vitest": "^2.1.8"
-  },
-  "dependencies": {
-    "@atproto/api": "^0.13.19",
-    "@atproto/crypto": "^0.4.2",
-    "@inquirer/prompts": "^7.2.0",
-    "boxen": "^8.0.1",
-    "uint8arrays": "^5.1.0",
-    "wrap-ansi": "^9.0.0",
-    "yargs": "^17.7.2"
   }
 }

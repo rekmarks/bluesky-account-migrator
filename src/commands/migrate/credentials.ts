@@ -1,6 +1,8 @@
 import type { MigrationCredentials } from '../../migration/index.js';
 import { isHttpUrl, isValidHandle } from '../../utils/index.js';
-import { input, password } from './prompts.js';
+import { confirm, input, password } from './prompts.js';
+import { bold, green } from 'yoctocolors-cjs';
+import boxen from 'boxen';
 
 export const validateUrl = (value: string) =>
   isHttpUrl(value) || 'Must be a valid HTTP or HTTPS URL string';
@@ -19,13 +21,15 @@ export const stripHandlePrefix = (value: string) => value.replace(/^@/u, '');
 export const finalizeHandle = (rawHandle: string, pdsUrl: string) =>
   `${stripHandlePrefix(rawHandle)}.${new URL(pdsUrl).hostname}`;
 
-export async function getCredentialsInteractive(): Promise<MigrationCredentials> {
-  // TODO: It would be nice if inquirer appended the https:// prefix to the PDS URL if it's missing.
+export async function getCredentialsInteractive(): Promise<
+  MigrationCredentials | undefined
+> {
   const oldPdsUrl = await input({
     message: 'Enter the current PDS URL',
     default: 'https://bsky.social',
     validate: validateUrl,
   });
+
   const rawOldHandle = await input({
     message: 'Enter the current handle, excluding the PDS URL',
     validate: validateHandle,
@@ -34,6 +38,11 @@ export async function getCredentialsInteractive(): Promise<MigrationCredentials>
 
   const oldPassword = await password({
     message: 'Enter the password for the current account',
+    validate: validateString,
+  });
+
+  const inviteCode = await input({
+    message: 'Enter the invite code for the new account (from the new PDS)',
     validate: validateString,
   });
 
@@ -48,11 +57,6 @@ export async function getCredentialsInteractive(): Promise<MigrationCredentials>
   });
   const newHandle = finalizeHandle(rawNewHandle, newPdsUrl);
 
-  const inviteCode = await input({
-    message:
-      'Enter the invite code for the new account (from the destination PDS)',
-    validate: validateString,
-  });
   const newEmail = await input({
     message: 'Enter the desired email address for the new account',
     validate: validateEmail,
@@ -67,14 +71,56 @@ export async function getCredentialsInteractive(): Promise<MigrationCredentials>
     validate: (value) => value === newPassword || 'Passwords do not match',
   });
 
-  return {
+  const credentials: MigrationCredentials = {
     oldPdsUrl,
-    newPdsUrl,
     oldHandle,
     oldPassword,
+    inviteCode,
+    newPdsUrl,
     newHandle,
     newEmail,
     newPassword,
-    inviteCode,
   };
+
+  printCredentials(credentials);
+
+  const confirmResult = confirm({
+    message: 'Perform the migration with these credentials?',
+  });
+
+  if (!(await confirmResult)) {
+    process.exitCode = 0;
+    return undefined;
+  }
+
+  return credentials;
+}
+
+const credentialLabels = {
+  oldPdsUrl: 'Current PDS URL',
+  oldHandle: 'Current handle',
+  oldPassword: 'Current password',
+  inviteCode: 'Invite code',
+  newPdsUrl: 'New PDS URL',
+  newHandle: 'New handle',
+  newEmail: 'New email',
+  newPassword: 'New password',
+} as const;
+
+function printCredentials(credentials: MigrationCredentials) {
+  const redacted = {
+    ...credentials,
+    oldPassword: '********',
+    newPassword: '********',
+  };
+
+  const content = Object.entries(redacted)
+    .map(([key, value]) => {
+      return `${bold(credentialLabels[key as keyof MigrationCredentials] + ':')}\n${green(value)}`;
+    })
+    .join('\n');
+
+  console.log();
+  console.log(boxen(content, { title: bold('Credentials'), padding: 1 }));
+  console.log();
 }
