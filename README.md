@@ -119,7 +119,7 @@ const privateKey = migration.newPrivateKey;
 
 ### Troubleshooting
 
-> [!INFO]
+> [!IMPORTANT]
 > If you encounter any problems with `bluesky-account-migrator`, please
 > [file an issue](https://github.com/rekmarks/bluesky-account-migrator/issues/new).
 
