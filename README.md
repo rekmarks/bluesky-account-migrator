@@ -27,7 +27,7 @@ Or the equivalent incantation using your package manager of choice.
 Migrating your Bluesky account is a potentially destructive operation that can result in
 losing access to the account. This CLI files away some of the rough edges, but it's far
 from perfect, and can't help you recover if the migration fails (although you may be able
-to recover yourself).
+to do so yourself, see [troubleshooting](#troubleshooting)).
 
 To get a better understanding of the risks and steps involved in account migration, see
 [Bluesky's account migration guide](https://github.com/bluesky-social/pds/blob/9ac9461ce2e4ed7ac66889bb1017662a2f846c98/ACCOUNT_MIGRATION.md). The implementation
