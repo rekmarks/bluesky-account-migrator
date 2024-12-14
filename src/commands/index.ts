@@ -1,3 +1,5 @@
-import { migrateCommand } from './migrate/index.js';
+import { defaultCommand, migrateCommand } from './migrate/index.js';
 
-export const commands = [migrateCommand];
+export const commands = [defaultCommand, migrateCommand];
+
+export type Commands = typeof commands;

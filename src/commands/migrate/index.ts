@@ -27,3 +27,10 @@ export const migrateCommand: CommandModule<{}, MigrateOptions> = {
     }
   },
 };
+
+export const defaultCommand: CommandModule<{}, MigrateOptions> = {
+  command: '$0 [mode]',
+  describe: migrateCommand.describe,
+  builder: migrateCommand.builder,
+  handler: migrateCommand.handler,
+};
