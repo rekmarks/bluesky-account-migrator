@@ -27,20 +27,19 @@ Or the equivalent incantation using your package manager of choice.
 Migrating your Bluesky account is a potentially destructive operation that can result in
 losing access to the account. This CLI files away some of the rough edges, but it's far
 from perfect, and can't help you recover if the migration fails (although you may be able
-to start over from scratch).
+to recover yourself).
 
 To get a better understanding of the risks and steps involved in account migration, see
 [Bluesky's account migration guide](https://github.com/bluesky-social/pds/blob/9ac9461ce2e4ed7ac66889bb1017662a2f846c98/ACCOUNT_MIGRATION.md). The implementation
 of this package is based on the snippet in that guide.
 
-### Missing features
+### Requirements
 
-- Verifying that all data was migrated
-  - This can be done manually using `com.atproto.server.checkAccountStatus`.
-- Finding blobs missing from the data migration
-- Bringing your own recovery key
-  - Currently, a recovery key is generated for you.
-- Migrating `did:web` accounts
+- A `did:plc` Bluesky account
+  - If you're unsure what this means, you almost certainly have it.
+- A PDS to migrate to
+  - Ideally, this PDS has SMTP enabled in order to verify your email.
+    Bluesky the app will ask you to do this for the new account.
 
 ### CLI
 
@@ -121,6 +120,8 @@ storeSomewhereSafe(migration.newPrivateKey);
 > If you encounter any problems with `bluesky-account-migrator`, please
 > [file an issue](https://github.com/rekmarks/bluesky-account-migrator/issues/new).
 
+#### Migration failure
+
 If your migration fails, you are alone in strange territory. However, all is not lost.
 While `bluesky-account-migrator` is not (yet) equipped to resume partial migrations,
 the error should tell you where it failed. In addition, the migration is implemented
@@ -129,3 +130,10 @@ as a state machine, and you should be able to figure out what's left to do by co
 which is essentially a function wrapping a set of logically associated API calls. By
 identifying the error and the remaining API calls, you can likely compose a script that
 completes the rest of the migration.
+
+#### Other issues
+
+- Missing data / blobs
+  - It may be the case that your migrated account is missing data / blobs.
+  - You can verify this manually using `com.atproto.server.checkAccountStatus`.
+  - Finding missing data is currently out of scope for this CLI.

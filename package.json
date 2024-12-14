@@ -1,35 +1,7 @@
 {
   "name": "bluesky-account-migrator",
-  "version": "0.0.0",
-  "description": "A simple CLI for migrating Bluesky accounts from one PDS to another.",
-  "exports": {
-    ".": {
-      "import": {
-        "types": "./dist/index.d.mts",
-        "default": "./dist/index.mjs"
-      },
-      "require": {
-        "types": "./dist/index.d.cts",
-        "default": "./dist/index.cjs"
-      }
-    },
-    "./package.json": "./package.json"
-  },
-  "main": "dist/index.cjs",
-  "type": "module",
-  "bin": {
-    "bam": "dist/main.mjs"
-  },
-  "scripts": {
-    "build": "npm run build:ts-bridge && npm run build:chmod",
-    "build:test": "npm run build && npm run build:test:fakes",
-    "build:test:fakes": "esbuild ./test/FakeMigration.ts --bundle --outfile=./dist/migration/Migration.mjs --format=esm --target=es2022 --platform=node --packages=external",
-    "build:ts-bridge": "ts-bridge --project tsconfig.build.json --verbose --clean --no-references",
-    "build:chmod": "chmod +x ./dist/main.mjs && chmod +x ./dist/main.cjs",
-    "lint": "prettier --check . && tsc --noEmit",
-    "lint:fix": "prettier --write . && tsc --noEmit",
-    "test": "vitest run"
-  },
+  "version": "0.1.0",
+  "description": "A CLI for migrating Bluesky accounts from one PDS to another.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rekmarks/bluesky-account-migrator.git"
@@ -46,6 +18,39 @@
     "url": "https://github.com/rekmarks/bluesky-account-migrator/issues"
   },
   "homepage": "https://github.com/rekmarks/bluesky-account-migrator#readme",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "dist/index.cjs",
+  "types": "dist/index.d.cts",
+  "type": "module",
+  "files": [
+    "dist/"
+  ],
+  "bin": {
+    "bam": "dist/main.mjs"
+  },
+  "scripts": {
+    "build": "npm run build:ts-bridge && npm run build:chmod",
+    "build:test": "npm run build && npm run build:test:fakes",
+    "build:test:fakes": "esbuild ./test/FakeMigration.ts --bundle --outfile=./dist/migration/Migration.mjs --format=esm --target=es2022 --platform=node --packages=external",
+    "build:ts-bridge": "ts-bridge --project tsconfig.build.json --verbose --clean --no-references",
+    "build:chmod": "chmod +x ./dist/main.mjs && chmod +x ./dist/main.cjs",
+    "lint": "prettier --check . && tsc --noEmit",
+    "lint:fix": "prettier --write . && tsc --noEmit",
+    "test": "vitest run"
+  },
   "dependencies": {
     "@atproto/api": "^0.13.19",
     "@atproto/crypto": "^0.4.2",
@@ -66,5 +71,12 @@
     "typescript": "^5.7.2",
     "vite": "^5.4.11",
     "vitest": "^2.1.8"
+  },
+  "engines": {
+    "node": "^18.20 || ^20.18 || >=22"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   }
 }
