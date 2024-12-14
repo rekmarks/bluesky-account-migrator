@@ -1,7 +1,24 @@
 {
   "name": "bluesky-account-migrator",
-  "version": "0.0.0",
-  "description": "A simple CLI for migrating Bluesky accounts from one PDS to another.",
+  "version": "0.1.0",
+  "description": "A CLI for migrating Bluesky accounts from one PDS to another.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rekmarks/bluesky-account-migrator.git"
+  },
+  "keywords": [
+    "bluesky",
+    "pds",
+    "atproto",
+    "cli"
+  ],
+  "author": "Erik Marks <rekmarks@protonmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rekmarks/bluesky-account-migrator/issues"
+  },
+  "homepage": "https://github.com/rekmarks/bluesky-account-migrator#readme",
+  "sideEffects": false,
   "exports": {
     ".": {
       "import": {
@@ -16,7 +33,11 @@
     "./package.json": "./package.json"
   },
   "main": "dist/index.cjs",
+  "types": "dist/index.d.cts",
   "type": "module",
+  "files": [
+    "dist/"
+  ],
   "bin": {
     "bam": "dist/main.mjs"
   },
@@ -30,21 +51,6 @@
     "lint:fix": "prettier --write . && tsc --noEmit",
     "test": "vitest run"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/rekmarks/bluesky-account-migrator.git"
-  },
-  "keywords": [
-    "bluesky",
-    "pds",
-    "atproto"
-  ],
-  "author": "Erik Marks <rekmarks@protonmail.com>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/rekmarks/bluesky-account-migrator/issues"
-  },
-  "homepage": "https://github.com/rekmarks/bluesky-account-migrator#readme",
   "dependencies": {
     "@atproto/api": "^0.13.19",
     "@atproto/crypto": "^0.4.2",
@@ -65,5 +71,12 @@
     "typescript": "^5.7.2",
     "vite": "^5.4.11",
     "vitest": "^2.1.8"
+  },
+  "engines": {
+    "node": "^18.20 || ^20.18 || >=22"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   }
 }
