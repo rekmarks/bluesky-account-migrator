@@ -112,9 +112,7 @@ if (result !== MigrationState.Finalized) {
 
 // This is the recovery private key for the account, which must be stored
 // somewhere or risk the loss of the account
-const privateKey = migration.newPrivateKey;
-
-// fin.
+storeSomewhereSafe(migration.newPrivateKey);
 ```
 
 ### Troubleshooting

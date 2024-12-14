@@ -37,7 +37,8 @@
   "keywords": [
     "bluesky",
     "pds",
-    "atproto"
+    "atproto",
+    "cli"
   ],
   "author": "Erik Marks <rekmarks@protonmail.com>",
   "license": "MIT",
