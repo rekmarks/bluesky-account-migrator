@@ -12,10 +12,13 @@ import type { AgentPair, PlcOperationParams } from '../types.js';
  * @param options.token - The token to use for the operation.
  * @returns The private key of the recovery key for the new account.
  */
-export async function migrateIdentity(
-  { oldAgent, newAgent }: AgentPair,
-  token: string,
-): Promise<string> {
+export async function migrateIdentity({
+  agents: { oldAgent, newAgent },
+  confirmationToken,
+}: {
+  agents: AgentPair;
+  confirmationToken: string;
+}): Promise<string> {
   const { recoveryKey, privateKey } = await generateRecoveryKey();
 
   const getDidCredentials =
@@ -28,7 +31,7 @@ export async function migrateIdentity(
   const plcCredentials: PlcOperationParams = {
     ...getDidCredentials.data,
     rotationKeys: [recoveryKey.did(), ...rotationKeys],
-    token,
+    token: confirmationToken,
   };
 
   const plcOp =

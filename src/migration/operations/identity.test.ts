@@ -34,10 +34,14 @@ describe('migrateIdentity', () => {
       makeXrpcResponse({ operation: 'signed-operation' }),
     );
 
-    const result = await migrateIdentity(
-      { oldAgent: oldAgent, newAgent: newAgent, accountDid: mockAccountDid },
-      mockToken,
-    );
+    const result = await migrateIdentity({
+      agents: {
+        oldAgent: oldAgent,
+        newAgent: newAgent,
+        accountDid: mockAccountDid,
+      },
+      confirmationToken: mockToken,
+    });
 
     expect(
       newAgent.com.atproto.identity.getRecommendedDidCredentials,
@@ -71,10 +75,14 @@ describe('migrateIdentity', () => {
     ).mockResolvedValue(makeXrpcResponse({}));
 
     await expect(
-      migrateIdentity(
-        { oldAgent: oldAgent, newAgent: newAgent, accountDid: mockAccountDid },
-        'token',
-      ),
+      migrateIdentity({
+        agents: {
+          oldAgent: oldAgent,
+          newAgent: newAgent,
+          accountDid: mockAccountDid,
+        },
+        confirmationToken: 'token',
+      }),
     ).rejects.toThrow('New PDS did not provide any rotation keys');
   });
 });

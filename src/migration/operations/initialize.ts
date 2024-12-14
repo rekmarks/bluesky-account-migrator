@@ -1,5 +1,6 @@
 import { AtpAgent } from '@atproto/api';
 import type { MigrationCredentials, AgentPair } from '../types.js';
+import { makeAuthenticatedAgent } from '../utils.js';
 
 /**
  * Initialize the agents and login to the old account on the old PDS.
@@ -12,11 +13,9 @@ export async function initializeAgents({
 }: {
   credentials: MigrationCredentials;
 }): Promise<AgentPair> {
-  const oldAgent = new AtpAgent({ service: credentials.oldPdsUrl });
-  const newAgent = new AtpAgent({ service: credentials.newPdsUrl });
-
-  await oldAgent.login({
-    identifier: credentials.oldHandle,
+  const oldAgent = await makeAuthenticatedAgent({
+    pdsUrl: credentials.oldPdsUrl,
+    handle: credentials.oldHandle,
     password: credentials.oldPassword,
   });
 
@@ -24,6 +23,8 @@ export async function initializeAgents({
   if (!accountDid) {
     throw new Error('Failed to get DID for old account');
   }
+
+  const newAgent = new AtpAgent({ service: credentials.newPdsUrl });
 
   return { oldAgent, newAgent, accountDid };
 }

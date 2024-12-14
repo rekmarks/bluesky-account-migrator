@@ -1,19 +1,36 @@
-import { describe, it, expect } from 'vitest';
-import { finalizeMigration } from './finalize.js';
-import { makeMockAgent, mockAccountDid } from '../../../test/utils.js';
+import { describe, it, expect, vi } from 'vitest';
+import { makeAuthenticatedAgent } from '../utils.js';
+import { finalize } from './finalize.js';
+import {
+  makeMockAgent,
+  makeMockCredentials,
+  mockAccountDid,
+} from '../../../test/utils.js';
 
-describe('finalizeMigration', () => {
+vi.mock('../utils.js', () => ({
+  makeAuthenticatedAgent: vi.fn(),
+}));
+
+describe('finalize', () => {
   it('should activate new account and deactivate old account', async () => {
-    const oldAgent = makeMockAgent();
+    const actualOldAgent = makeMockAgent();
     const newAgent = makeMockAgent();
+    const mockCredentials = makeMockCredentials();
 
-    await finalizeMigration({
-      oldAgent: oldAgent,
-      newAgent: newAgent,
-      accountDid: mockAccountDid,
+    vi.mocked(makeAuthenticatedAgent).mockResolvedValue(actualOldAgent);
+
+    await finalize({
+      agents: {
+        oldAgent: makeMockAgent(),
+        newAgent,
+        accountDid: mockAccountDid,
+      },
+      credentials: mockCredentials,
     });
 
     expect(newAgent.com.atproto.server.activateAccount).toHaveBeenCalled();
-    expect(oldAgent.com.atproto.server.deactivateAccount).toHaveBeenCalled();
+    expect(
+      actualOldAgent.com.atproto.server.deactivateAccount,
+    ).toHaveBeenCalled();
   });
 });

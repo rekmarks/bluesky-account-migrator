@@ -71,25 +71,28 @@ const stateMachineConfig: StateMachineConfig = {
       nextState: MigrationState.RequestedPlcOperation,
     };
   },
-  [MigrationState.RequestedPlcOperation]: async (params) => {
-    const { agents, credentials, confirmationToken } = params;
+  [MigrationState.RequestedPlcOperation]: async ({
+    agents,
+    credentials,
+    confirmationToken,
+  }) => {
     if (!confirmationToken) {
       return {
         nextState: MigrationState.RequestedPlcOperation,
       };
     }
 
-    const newPrivateKey = await operations.migrateIdentity(
+    const newPrivateKey = await operations.migrateIdentity({
       agents,
       confirmationToken,
-    );
+    });
     return {
       nextState: MigrationState.MigratedIdentity,
       data: { credentials, agents, confirmationToken, newPrivateKey },
     };
   },
-  [MigrationState.MigratedIdentity]: async ({ agents }) => {
-    await operations.finalizeMigration(agents);
+  [MigrationState.MigratedIdentity]: async ({ agents, credentials }) => {
+    await operations.finalize({ agents, credentials });
     return {
       nextState: MigrationState.Finalized,
     };

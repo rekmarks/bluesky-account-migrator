@@ -10,7 +10,7 @@ vi.mock('./operations/index.js', () => ({
   migrateData: vi.fn(),
   requestPlcOperation: vi.fn(),
   migrateIdentity: vi.fn(),
-  finalizeMigration: vi.fn(),
+  finalize: vi.fn(),
 }));
 
 const makeMockAgents = (): AgentPair =>
@@ -72,11 +72,14 @@ describe('Migration', () => {
         credentials: mockCredentials,
       });
       expect(operations.migrateData).toHaveBeenCalledWith(agentsMatcher);
-      expect(operations.migrateIdentity).toHaveBeenCalledWith(
-        agentsMatcher,
-        mockToken,
-      );
-      expect(operations.finalizeMigration).toHaveBeenCalledWith(agentsMatcher);
+      expect(operations.migrateIdentity).toHaveBeenCalledWith({
+        agents: agentsMatcher,
+        confirmationToken: mockToken,
+      });
+      expect(operations.finalize).toHaveBeenCalledWith({
+        agents: agentsMatcher,
+        credentials: mockCredentials,
+      });
 
       // Verify final state
       expect(migration.newPrivateKey).toBe(mockPrivateKey);
@@ -122,10 +125,10 @@ describe('Migration', () => {
       migration.confirmationToken = mockToken;
       await migration.run();
 
-      expect(operations.migrateIdentity).toHaveBeenCalledWith(
-        agentsMatcher,
-        mockToken,
-      );
+      expect(operations.migrateIdentity).toHaveBeenCalledWith({
+        agents: agentsMatcher,
+        confirmationToken: mockToken,
+      });
     });
   });
 });
