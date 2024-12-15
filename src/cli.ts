@@ -1,7 +1,8 @@
-import packageJson from 'bluesky-account-migrator/package.json' assert { type: 'json' };
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
+
 import type { Commands } from './commands/index.js';
+import packageJson from 'bluesky-account-migrator/package.json' assert { type: 'json' };
 
 export async function cli(argv: string[], commands: Commands) {
   await yargs(hideBin(argv))

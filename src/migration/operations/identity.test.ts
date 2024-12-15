@@ -1,11 +1,12 @@
+import { Secp256k1Keypair } from '@atproto/crypto';
 import { describe, it, expect, vi } from 'vitest';
+
 import { migrateIdentity } from './identity.js';
 import {
   makeMockAgent,
   makeXrpcResponse,
   mockAccountDid,
 } from '../../../test/utils.js';
-import { Secp256k1Keypair } from '@atproto/crypto';
 
 vi.mock('@atproto/crypto', () => ({
   Secp256k1Keypair: {
@@ -23,7 +24,7 @@ describe('migrateIdentity', () => {
     // @ts-expect-error
     vi.mocked(Secp256k1Keypair.create).mockResolvedValue({
       did: () => mockDid,
-      export: () => Promise.resolve(new Uint8Array([1, 2, 3])),
+      export: async () => Promise.resolve(new Uint8Array([1, 2, 3])),
     });
 
     vi.mocked(
@@ -36,8 +37,8 @@ describe('migrateIdentity', () => {
 
     const result = await migrateIdentity({
       agents: {
-        oldAgent: oldAgent,
-        newAgent: newAgent,
+        oldAgent,
+        newAgent,
         accountDid: mockAccountDid,
       },
       confirmationToken: mockToken,
@@ -67,7 +68,7 @@ describe('migrateIdentity', () => {
     // @ts-expect-error
     vi.mocked(Secp256k1Keypair.create).mockResolvedValue({
       did: () => 'did:key:mock123',
-      export: () => Promise.resolve(new Uint8Array([1, 2, 3])),
+      export: async () => Promise.resolve(new Uint8Array([1, 2, 3])),
     });
 
     vi.mocked(
@@ -77,8 +78,8 @@ describe('migrateIdentity', () => {
     await expect(
       migrateIdentity({
         agents: {
-          oldAgent: oldAgent,
-          newAgent: newAgent,
+          oldAgent,
+          newAgent,
           accountDid: mockAccountDid,
         },
         confirmationToken: 'token',

@@ -3,14 +3,10 @@ import type { AgentPair } from '../types.js';
 /**
  * Migrate the data repository, blobs, and preferences from the old PDS to the new PDS.
  *
- * @param options - Options bag.
- * @param options.agents - The agent pair.
+ * @param agents - The agents for the migration.
  */
-export async function migrateData({
-  oldAgent,
-  newAgent,
-  accountDid,
-}: AgentPair): Promise<void> {
+export async function migrateData(agents: AgentPair): Promise<void> {
+  const { oldAgent, newAgent, accountDid } = agents;
   // Migrate repo
   const repoRes = await oldAgent.com.atproto.sync.getRepo({ did: accountDid });
   await newAgent.com.atproto.repo.importRepo(repoRes.data, {
@@ -18,7 +14,7 @@ export async function migrateData({
   });
 
   // Migrate blobs
-  await migrateBlobs({ oldAgent: oldAgent, newAgent: newAgent, accountDid });
+  await migrateBlobs({ oldAgent, newAgent, accountDid });
 
   // Migrate preferences
   const prefs = await oldAgent.app.bsky.actor.getPreferences();
@@ -30,7 +26,7 @@ async function migrateBlobs({
   newAgent,
   accountDid,
 }: AgentPair): Promise<void> {
-  let blobCursor: string | undefined = undefined;
+  let blobCursor: string | undefined;
   do {
     const listedBlobs = await oldAgent.com.atproto.sync.listBlobs({
       did: accountDid,

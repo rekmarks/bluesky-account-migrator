@@ -39,12 +39,14 @@ export const logError = (
   error: unknown,
   fallback = 'An unknown error occurred, please report this bug',
 ) => {
-  const message =
-    error instanceof Error
-      ? error.message
-      : typeof error === 'string'
-        ? error
-        : fallback;
+  let message;
+  if (error instanceof Error) {
+    message = error.message;
+  } else if (typeof error === 'string') {
+    message = error;
+  } else {
+    message = fallback;
+  }
 
   console.log(wrap(red(message)));
 };

@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
+
 import { createNewAccount } from './account.js';
 import {
   makeMockAgent,

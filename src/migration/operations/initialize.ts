@@ -1,4 +1,5 @@
 import { AtpAgent } from '@atproto/api';
+
 import type { MigrationCredentials, AgentPair } from '../types.js';
 import { makeAuthenticatedAgent } from '../utils.js';
 
@@ -7,6 +8,7 @@ import { makeAuthenticatedAgent } from '../utils.js';
  *
  * @param options - Options bag.
  * @param options.credentials - The credentials.
+ * @returns The initialized agents.
  */
 export async function initializeAgents({
   credentials,

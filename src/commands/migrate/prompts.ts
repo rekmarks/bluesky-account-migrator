@@ -3,12 +3,13 @@ import {
   input as _input,
   password as _password,
 } from '@inquirer/prompts';
+
 import { logWrapped } from '../../utils/terminal.js';
 
-const wrapPrompt = <T extends (...args: any[]) => Promise<unknown>>(
-  prompt: T,
+const wrapPrompt = <PromptFn extends (...args: any[]) => Promise<unknown>>(
+  prompt: PromptFn,
 ) => {
-  return async (...args: Parameters<T>) => {
+  return async (...args: Parameters<PromptFn>) => {
     try {
       const result = await prompt(...args);
       return typeof result === 'string' ? result.trim() : result;

@@ -1,11 +1,12 @@
 import { describe, it, expect, vi } from 'vitest';
-import { makeAuthenticatedAgent } from '../utils.js';
+
 import { finalize } from './finalize.js';
 import {
   makeMockAgent,
   makeMockCredentials,
   mockAccountDid,
 } from '../../../test/utils.js';
+import { makeAuthenticatedAgent } from '../utils.js';
 
 vi.mock('../utils.js', () => ({
   makeAuthenticatedAgent: vi.fn(),

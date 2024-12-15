@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+
 import { isValidHandle } from './handle.js';
 
 describe('isValidHandle', () => {

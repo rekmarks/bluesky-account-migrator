@@ -1,5 +1,6 @@
 import type { AppBskyActorGetPreferences } from '@atproto/api';
 import { describe, it, expect, vi } from 'vitest';
+
 import { migrateData } from './data.js';
 import {
   mockAccountDid,
@@ -36,8 +37,8 @@ describe('migrateData', () => {
     );
 
     await migrateData({
-      oldAgent: oldAgent,
-      newAgent: newAgent,
+      oldAgent,
+      newAgent,
       accountDid: mockAccountDid,
     });
 

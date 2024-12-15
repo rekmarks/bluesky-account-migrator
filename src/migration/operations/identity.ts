@@ -1,5 +1,6 @@
 import { Secp256k1Keypair } from '@atproto/crypto';
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string';
+
 import type { AgentPair, PlcOperationParams } from '../types.js';
 
 /**
@@ -9,7 +10,7 @@ import type { AgentPair, PlcOperationParams } from '../types.js';
  *
  * @param options - Options bag.
  * @param options.agents - The agent pair.
- * @param options.token - The token to use for the operation.
+ * @param options.confirmationToken - The confirmation token to use for the operation.
  * @returns The private key of the recovery key for the new account.
  */
 export async function migrateIdentity({

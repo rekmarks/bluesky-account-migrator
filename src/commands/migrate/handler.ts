@@ -1,3 +1,7 @@
+import { getCredentialsInteractive, validateString } from './credentials.js';
+import { input, pressEnter } from './prompts.js';
+import { Migration, MigrationState } from '../../migration/index.js';
+import type { MigrationCredentials } from '../../migration/index.js';
 import {
   logError,
   logDelimiter,
@@ -6,10 +10,6 @@ import {
   logCentered,
   logWrapped,
 } from '../../utils/index.js';
-import { Migration, MigrationState } from '../../migration/index.js';
-import type { MigrationCredentials } from '../../migration/index.js';
-import { getCredentialsInteractive, validateString } from './credentials.js';
-import { input, pressEnter } from './prompts.js';
 
 export async function handleMigrateInteractive(): Promise<void> {
   logIntroduction();
@@ -48,7 +48,8 @@ function logIntroduction(): void {
 
 /**
  * Collects credentials from the user and constructs the new Migration instance.
- * @returns {credentials: MigrationCredentials, migration: Migration} if successful,
+ *
+ * @returns if successful,
  * undefined if the user cancels the process
  */
 async function initializeMigration(): Promise<
@@ -68,6 +69,10 @@ async function initializeMigration(): Promise<
 
 /**
  * Given a fresh migration instance, runs the migration until it reaches the `Finalized` state.
+ *
+ * @param credentials - The credentials for the migration.
+ * @param migration - The migration instance.
+ * @returns The private key of the new account.
  * @throws {Error} if anything goes wrong.
  */
 async function executeMigration(
@@ -76,6 +81,7 @@ async function executeMigration(
 ): Promise<string> {
   await beginMigration(migration);
 
+  // eslint-disable-next-line require-atomic-updates
   migration.confirmationToken = await promptForConfirmationToken(credentials);
 
   return await finalizeMigration(migration);
@@ -83,6 +89,8 @@ async function executeMigration(
 
 /**
  * Runs the migration until it reaches the `RequestedPlcOperation` state.
+ *
+ * @param migration - The migration instance.
  * @throws {Error} if the resulting migration state is not as expected
  */
 async function beginMigration(migration: Migration): Promise<void> {
@@ -96,6 +104,9 @@ async function beginMigration(migration: Migration): Promise<void> {
 
 /**
  * Requests a confirmation token from the user.
+ *
+ * @param credentials - The credentials for the migration.
+ * @returns The confirmation token.
  * @throws {Error} if the user cancels the process
  */
 async function promptForConfirmationToken(
@@ -118,6 +129,9 @@ async function promptForConfirmationToken(
 
 /**
  * Runs the migration until it reaches the `Finalized` state.
+ *
+ * @param migration - The migration instance.
+ * @returns The private key of the new account.
  * @throws {Error} if the resulting migration state is not as expected
  */
 async function finalizeMigration(migration: Migration): Promise<string> {

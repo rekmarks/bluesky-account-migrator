@@ -1,8 +1,9 @@
+import boxen from 'boxen';
+import { bold, green } from 'yoctocolors-cjs';
+
+import { confirm, input, password } from './prompts.js';
 import type { MigrationCredentials } from '../../migration/index.js';
 import { isHttpUrl, isValidHandle } from '../../utils/index.js';
-import { confirm, input, password } from './prompts.js';
-import { bold, green } from 'yoctocolors-cjs';
-import boxen from 'boxen';
 
 export const validateUrl = (value: string) =>
   isHttpUrl(value) || 'Must be a valid HTTP or HTTPS URL string';
@@ -116,7 +117,7 @@ function logCredentials(credentials: MigrationCredentials) {
 
   const content = Object.entries(redacted)
     .map(([key, value]) => {
-      return `${bold(credentialLabels[key as keyof MigrationCredentials] + ':')}\n${green(value)}`;
+      return `${bold(`${credentialLabels[key as keyof MigrationCredentials]}:`)}\n${green(value)}`;
     })
     .join('\n');
 

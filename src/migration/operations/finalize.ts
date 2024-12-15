@@ -7,6 +7,7 @@ import { makeAuthenticatedAgent } from '../utils.js';
  *
  * @param options - Options bag.
  * @param options.agents - The agent pair.
+ * @param options.credentials - The migration credentials.
  */
 export async function finalize({
   agents: { newAgent },

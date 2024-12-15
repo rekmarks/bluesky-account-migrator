@@ -1,17 +1,11 @@
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  Mock,
-  beforeEach,
-  MockInstance,
-} from 'vitest';
+import type { Mock, MockInstance } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+import { handleMigrateInteractive } from './handler.js';
+import { input } from './prompts.js';
 import { makeMockCredentials } from '../../../test/utils.js';
 import type { MigrationCredentials } from '../../migration/index.js';
 import { Migration, MigrationState } from '../../migration/index.js';
-import { handleMigrateInteractive } from './handler.js';
-import { input } from './prompts.js';
 
 vi.mock('../../utils/index.js', async (importOriginal) => ({
   ...(await importOriginal()),
@@ -32,7 +26,7 @@ vi.mock('../../migration/index.js', async (importOriginal) => ({
 
 vi.mock('./credentials.js', async (importOriginal) => ({
   ...(await importOriginal()),
-  getCredentialsInteractive: vi.fn(() =>
+  getCredentialsInteractive: vi.fn(async () =>
     Promise.resolve(makeMockCredentials()),
   ),
 }));
@@ -55,6 +49,7 @@ describe('handleMigrateInteractive', () => {
     mockPrivateKey = undefined;
     logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined);
 
+    /* eslint-disable no-invalid-this */
     vi.mocked(Migration).mockImplementation(function (
       this: MockMigration,
       arg: { credentials: MigrationCredentials },
@@ -65,6 +60,7 @@ describe('handleMigrateInteractive', () => {
       this.state = MigrationState.Ready;
       return this as unknown as Migration;
     });
+    /* eslint-enable no-invalid-this */
   });
 
   it('should run a migration', async () => {
@@ -112,7 +108,8 @@ describe('handleMigrateInteractive', () => {
   });
 
   it('should handle a failed migration in the CreatedNewAccount state', async () => {
-    runMock.mockImplementation(function (this: MockMigration) {
+    runMock.mockImplementation(async function (this: MockMigration) {
+      // eslint-disable-next-line no-invalid-this
       this.state = MigrationState.CreatedNewAccount;
       return Promise.reject(new Error('foo'));
     });
@@ -134,7 +131,8 @@ describe('handleMigrateInteractive', () => {
 
   it('should handle a failed migration in the MigratedIdentity state', async () => {
     mockPrivateKey = '0xdeadbeef';
-    runMock.mockImplementation(function (this: MockMigration) {
+    runMock.mockImplementation(async function (this: MockMigration) {
+      // eslint-disable-next-line no-invalid-this
       this.state = MigrationState.MigratedIdentity;
       return Promise.reject(new Error('foo'));
     });

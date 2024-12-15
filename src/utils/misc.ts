@@ -14,7 +14,7 @@ export const isHttpUrl = (value: unknown): boolean => {
 
   try {
     return /^https?:$/u.test(new URL(value).protocol);
-  } catch (_error) {
+  } catch {
     return false;
   }
 };
@@ -23,11 +23,12 @@ export const stringify = (value: unknown) => JSON.stringify(value, null, 2);
 
 /**
  * Pick non-`#` properties from a type.
- * @param T - The type to pick public properties from.
+ *
+ * @template Type - The type to pick public properties from.
  */
-export type PickPublic<T> = Pick<
-  T,
+export type PickPublic<Type> = Pick<
+  Type,
   {
-    [K in keyof T]: K extends `#${string}` ? never : K;
-  }[keyof T]
+    [K in keyof Type]: K extends `#${string}` ? never : K;
+  }[keyof Type]
 >;
