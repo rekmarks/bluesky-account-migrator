@@ -50,7 +50,7 @@
     "lint": "pnpm lint:prettier --check && pnpm lint:changelog && pnpm lint:dependencies --check && pnpm lint:types",
     "lint:changelog": "auto-changelog validate --prettier",
     "lint:dependencies": "depcheck && pnpm dedupe",
-    "lint:prettier": "prettier .",
+    "lint:prettier": "prettier . '!pnpm-lock.yaml' --ignore-path .gitignore",
     "lint:types": "tsc --noEmit",
     "lint:fix": "pnpm lint:prettier --write && pnpm lint:changelog && pnpm lint:dependencies && pnpm lint:types",
     "test": "vitest run"
