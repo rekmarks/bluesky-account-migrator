@@ -86,7 +86,7 @@ jobs:
         env:
           SKIP_PREPACK: true
 
-  # TODO: Add docs
+  # TODO: Add docs and docs publishing
   # publish-docs:
   #   name: Publish docs
   #   needs: publish-npm
