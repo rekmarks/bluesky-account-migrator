@@ -1,6 +1,7 @@
 {
   "ignores": [
     "@lavamoat/preinstall-always-fail",
+    "@metamask/create-release-branch",
     "@tsconfig/node22",
     "@types/*",
     "bluesky-account-migrator"
