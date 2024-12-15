@@ -8,8 +8,7 @@ export type MigrateOptions = {
   mode: Mode;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-type CommandModule<Args> = RawCommandModule<{}, Args>;
+type CommandModule<Args> = RawCommandModule<Record<string, unknown>, Args>;
 
 export const migrateCommand: CommandModule<MigrateOptions> = {
   command: 'migrate [mode]',
