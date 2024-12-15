@@ -4,6 +4,14 @@
     "@metamask/create-release-branch",
     "@tsconfig/node22",
     "@types/*",
-    "bluesky-account-migrator"
+    "bluesky-account-migrator",
+    "eslint-config-prettier",
+    "eslint-import-resolver-typescript",
+    "eslint-plugin-import-x",
+    "eslint-plugin-jsdoc",
+    "eslint-plugin-n",
+    "eslint-plugin-prettier",
+    "eslint-plugin-promise",
+    "eslint-plugin-vitest"
   ]
 }
