@@ -1,3 +1,8 @@
 {
-  "ignores": ["@tsconfig/node22", "@types/*", "bluesky-account-migrator"]
+  "ignores": [
+    "@lavamoat/preinstall-always-fail",
+    "@tsconfig/node22",
+    "@types/*",
+    "bluesky-account-migrator"
+  ]
 }

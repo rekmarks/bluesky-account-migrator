@@ -36,6 +36,9 @@ importers:
       '@atproto/xrpc':
         specifier: ^0.6.5
         version: 0.6.5
+      '@lavamoat/preinstall-always-fail':
+        specifier: ^2.1.0
+        version: 2.1.0
       '@metamask/auto-changelog':
         specifier: ^4.0.0
         version: 4.0.0(prettier@3.4.2)
@@ -502,6 +505,10 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
+
+  '@lavamoat/preinstall-always-fail@2.1.0':
+    resolution: {integrity: sha512-9xSsxxryPMyBWxfV+Ver7FZhvC1PhE1wDCsYFwsiqZzmeWH8e7Y7gWRFJqPw4M8WNbfeuPhKbLdCK3GsPz9gKg==}
+    engines: {node: ^16.20.0 || ^18.0.0 || ^20.0.0 || ^22.0.0}
 
   '@metamask/auto-changelog@4.0.0':
     resolution: {integrity: sha512-L9eIi8Fa8598T9+mu7drjHGyKqrydCNRvjZOiD4aCptT/mgndkDu2kh+G7NnlqkIBj27hoVthlzA33dgrBIskQ==}
@@ -1772,6 +1779,8 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
+
+  '@lavamoat/preinstall-always-fail@2.1.0': {}
 
   '@metamask/auto-changelog@4.0.0(prettier@3.4.2)':
     dependencies:
