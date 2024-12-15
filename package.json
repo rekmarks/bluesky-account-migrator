@@ -47,11 +47,12 @@
     "build:test:fakes": "esbuild ./test/FakeMigration.ts --bundle --outfile=./dist/migration/Migration.mjs --format=esm --target=es2022 --platform=node --packages=external",
     "build:ts-bridge": "ts-bridge --project tsconfig.build.json --verbose --clean --no-references",
     "build:chmod": "chmod +x ./dist/main.mjs && chmod +x ./dist/main.cjs",
-    "lint": "pnpm lint:prettier --check && pnpm lint:changelog && pnpm lint:types",
+    "lint": "pnpm lint:prettier --check && pnpm lint:changelog && pnpm lint:dependencies --check && pnpm lint:types",
     "lint:changelog": "auto-changelog validate --prettier",
+    "lint:dependencies": "depcheck && pnpm dedupe",
     "lint:prettier": "prettier .",
     "lint:types": "tsc --noEmit",
-    "lint:fix": "pnpm lint:prettier --write && pnpm lint:changelog && pnpm lint:types",
+    "lint:fix": "pnpm lint:prettier --write && pnpm lint:changelog && pnpm lint:dependencies && pnpm lint:types",
     "test": "vitest run"
   },
   "dependencies": {
@@ -65,11 +66,13 @@
     "yoctocolors-cjs": "^2.1.2"
   },
   "devDependencies": {
+    "@atproto/xrpc": "^0.6.5",
     "@metamask/auto-changelog": "^4.0.0",
     "@ts-bridge/cli": "^0.6.1",
     "@tsconfig/node22": "^22.0.0",
     "@types/node": "^22.10.1",
     "@types/yargs": "^17.0.33",
+    "depcheck": "^1.4.7",
     "esbuild": "^0.24.0",
     "prettier": "^3.4.2",
     "typescript": "^5.7.2",
