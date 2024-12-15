@@ -4,7 +4,7 @@
   "description": "A CLI for migrating Bluesky accounts from one PDS to another.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rekmarks/bluesky-account-migrator.git"
+    "url": "https://github.com/rekmarks/bluesky-account-migrator.git"
   },
   "keywords": [
     "bluesky",
@@ -42,13 +42,16 @@
     "bam": "dist/main.mjs"
   },
   "scripts": {
-    "build": "npm run build:ts-bridge && npm run build:chmod",
-    "build:test": "npm run build && npm run build:test:fakes",
+    "build": "pnpm build:ts-bridge && pnpm build:chmod",
+    "build:test": "pnpm build && pnpm build:test:fakes",
     "build:test:fakes": "esbuild ./test/FakeMigration.ts --bundle --outfile=./dist/migration/Migration.mjs --format=esm --target=es2022 --platform=node --packages=external",
     "build:ts-bridge": "ts-bridge --project tsconfig.build.json --verbose --clean --no-references",
     "build:chmod": "chmod +x ./dist/main.mjs && chmod +x ./dist/main.cjs",
-    "lint": "prettier --check . && tsc --noEmit",
-    "lint:fix": "prettier --write . && tsc --noEmit",
+    "lint": "pnpm lint:prettier --check && pnpm lint:changelog && pnpm lint:types",
+    "lint:changelog": "auto-changelog validate --prettier",
+    "lint:prettier": "prettier .",
+    "lint:types": "tsc --noEmit",
+    "lint:fix": "pnpm lint:prettier --write && pnpm lint:changelog && pnpm lint:types",
     "test": "vitest run"
   },
   "dependencies": {
@@ -62,6 +65,7 @@
     "yoctocolors-cjs": "^2.1.2"
   },
   "devDependencies": {
+    "@metamask/auto-changelog": "^4.0.0",
     "@ts-bridge/cli": "^0.6.1",
     "@tsconfig/node22": "^22.0.0",
     "@types/node": "^22.10.1",
@@ -78,5 +82,6 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
-  }
+  },
+  "packageManager": "pnpm@9.15.0+sha512.76e2379760a4328ec4415815bcd6628dee727af3779aaa4c914e3944156c4299921a89f976381ee107d41f12cfa4b66681ca9c718f0668fa0831ed4c6d8ba56c"
 }
