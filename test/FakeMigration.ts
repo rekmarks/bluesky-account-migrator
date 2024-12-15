@@ -17,10 +17,15 @@ const getStateIndex = (state: MigrationState) =>
 
 export class Migration implements PickPublic<ActualMigration> {
   state: MigrationState = MigrationState.Ready;
+
   credentials: MigrationCredentials;
+
   accountDid = mockAccountDid;
+
   newPrivateKey = '0xdeadbeef';
+
   confirmationToken = '123456';
+
   agents = {
     oldAgent: {},
     newAgent: {},
@@ -56,12 +61,13 @@ export class Migration implements PickPublic<ActualMigration> {
 }
 
 function getFailureCondition() {
-  const failureCondition = process.env.FAILURE_CONDITION ?? undefined;
-  if (failureCondition) {
-    if (failureCondition in MigrationState) {
-      return failureCondition as MigrationState;
+  // eslint-disable-next-line n/no-process-env
+  const condition = process.env.FAILURE_CONDITION ?? undefined;
+  if (condition) {
+    if (condition in MigrationState) {
+      return condition as MigrationState;
     }
-    throw new Error(`Invalid failure condition: ${failureCondition}`);
+    throw new Error(`Invalid failure condition: ${condition}`);
   }
   return undefined;
 }

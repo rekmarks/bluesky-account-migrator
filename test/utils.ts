@@ -1,6 +1,8 @@
+import type { AtpAgent } from '@atproto/api';
 import type { HeadersMap } from '@atproto/xrpc';
-import { AtpAgent } from '@atproto/api';
-import { vi, Mocked } from 'vitest';
+import type { Mocked } from 'vitest';
+import { vi } from 'vitest';
+
 import type { MigrationCredentials } from '../src/migration/types.js';
 
 export const makeMockCredentials = (): MigrationCredentials => ({

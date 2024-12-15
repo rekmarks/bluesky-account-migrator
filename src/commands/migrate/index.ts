@@ -1,4 +1,5 @@
-import type { Argv, CommandModule } from 'yargs';
+import type { Argv, CommandModule as RawCommandModule } from 'yargs';
+
 import { handleMigrateInteractive } from './handler.js';
 
 type Mode = 'interactive' | 'i';
@@ -7,7 +8,10 @@ export type MigrateOptions = {
   mode: Mode;
 };
 
-export const migrateCommand: CommandModule<{}, MigrateOptions> = {
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+type CommandModule<Args> = RawCommandModule<{}, Args>;
+
+export const migrateCommand: CommandModule<MigrateOptions> = {
   command: 'migrate [mode]',
   aliases: ['m'],
   describe: 'Perform a migration',
@@ -28,7 +32,7 @@ export const migrateCommand: CommandModule<{}, MigrateOptions> = {
   },
 };
 
-export const defaultCommand: CommandModule<{}, MigrateOptions> = {
+export const defaultCommand: CommandModule<MigrateOptions> = {
   command: '$0 [mode]',
   describe: migrateCommand.describe,
   builder: migrateCommand.builder,

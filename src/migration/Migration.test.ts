@@ -1,8 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { makeMockCredentials, mockAccountDid } from '../../test/utils.js';
-import * as operations from './operations/index.js';
+
 import { Migration, MigrationState } from './Migration.js';
+import * as operations from './operations/index.js';
 import type { AgentPair, MigrationCredentials } from './types.js';
+import { makeMockCredentials, mockAccountDid } from '../../test/utils.js';
 
 vi.mock('./operations/index.js', () => ({
   initializeAgents: vi.fn(),

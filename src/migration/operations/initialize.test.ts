@@ -1,5 +1,6 @@
-import { describe, it, expect, vi, Mocked } from 'vitest';
 import { AtpAgent } from '@atproto/api';
+import { describe, it, expect, vi } from 'vitest';
+
 import { initializeAgents } from './initialize.js';
 import {
   makeMockAgent,

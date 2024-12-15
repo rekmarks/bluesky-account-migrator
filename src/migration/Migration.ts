@@ -36,9 +36,9 @@ type StateData = {
   [MigrationState.Finalized]: FinalData;
 };
 
-type TransitionResult<S extends MigrationState> = Promise<{
+type TransitionResult<State extends MigrationState> = Promise<{
   nextState: MigrationState;
-  data?: StateData[S];
+  data?: StateData[State];
 }>;
 
 type StateMachineConfig = {
@@ -104,6 +104,7 @@ const stateMachineConfig: StateMachineConfig = {
 
 export class Migration {
   #state: MigrationState;
+
   #data: StateData[MigrationState];
 
   get #agents() {
@@ -140,6 +141,12 @@ export class Migration {
 
   set confirmationToken(token: string) {
     this.#data = { ...this.#data, confirmationToken: token };
+  }
+
+  get confirmationToken(): string | undefined {
+    return 'confirmationToken' in this.#data
+      ? this.#data.confirmationToken
+      : undefined;
   }
 
   /**

@@ -1,4 +1,5 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
+
 import { requestPlcOperation } from './request-plc-operation.js';
 import { makeMockAgent, mockAccountDid } from '../../../test/utils.js';
 
