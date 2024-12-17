@@ -48,10 +48,10 @@
     "build:ts-bridge": "ts-bridge --project tsconfig.build.json --verbose --clean --no-references",
     "build:chmod": "chmod +x ./dist/main.mjs && chmod +x ./dist/main.cjs",
     "lint": "pnpm lint:eslint && pnpm lint:misc --check && pnpm lint:changelog && pnpm lint:dependencies --check && pnpm lint:types",
-    "lint:changelog": "auto-changelog validate --prettier",
+    "lint:changelog": "auto-changelog validate --prettier --repo https://github.com/rekmarks/bluesky-account-migrator.git",
     "lint:dependencies": "depcheck && pnpm dedupe",
     "lint:eslint": "eslint . --cache",
-    "lint:misc": "prettier '**/*.json' '**/*.md' '**/*.yml' '!pnpm-lock.yaml' --ignore-path .gitignore --no-error-on-unmatched-pattern",
+    "lint:misc": "prettier '**/*.json' '**/*.md' '**/*.yml' '!CHANGELOG.md' '!pnpm-lock.yaml' --ignore-path .gitignore --no-error-on-unmatched-pattern",
     "lint:types": "tsc --noEmit",
     "lint:fix": "pnpm lint:eslint --fix && pnpm lint:misc --write && pnpm lint:changelog && pnpm lint:dependencies && pnpm lint:types",
     "test": "vitest run"
