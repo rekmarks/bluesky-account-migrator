@@ -41,6 +41,21 @@ of this package is based on the snippet in that guide.
   - Ideally, this PDS has SMTP enabled in order to verify your email.
     Bluesky the app will ask you to do this for the new account.
 
+### Gotchas
+
+#### Custom handles
+
+You cannot submit custom handles—i.e. ones that do not end with `.bsky.social`—
+as your new handle.
+Bluesky's PDS implementation requires that all handles are a subdomain of the PDS
+hostname.
+For example, if your PDS is hosted at `pds.foo.com`, new accounts must have handles
+of the form `*.pds.foo.com`.
+If you already have a custom handle, you can configure it for your migrated account
+after the migration.
+See e.g. [this discussion](https://github.com/bluesky-social/atproto/discussions/2909)
+for how to do this.
+
 ### CLI
 
 The CLI has a single command `migrate`, which you can run using e.g. `npx`:
