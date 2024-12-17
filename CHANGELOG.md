@@ -7,11 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0]
+
+### Changed
+
+- Make `migrate` the default CLI command
+
+### Fixed
+
+- Fix support for custom handles on old PDS
+  - Permits handles such as `foo.com` even if your old PDS is something else, like `bsky.social`.
+  - The full handle must now always be entered, including the PDS URL (if it's in the handle).
+
 ## [0.1.0]
 
 ### Added
 
 - Initial release ([#12](https://github.com/rekmarks/bluesky-account-migrator/pull/12))
 
-[Unreleased]: https://github.com/rekmarks/bluesky-account-migrator/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/rekmarks/bluesky-account-migrator/releases/tag/v0.1.0
+[Unreleased]: https://github.com/rekmarks/bluesky-account-migrator.git/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/rekmarks/bluesky-account-migrator.git/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/rekmarks/bluesky-account-migrator.git/releases/tag/v0.1.0
