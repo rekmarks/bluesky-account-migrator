@@ -19,6 +19,27 @@ export const validateHandle = (value: string) =>
 
 export const stripHandlePrefix = (value: string) => value.replace(/^@/u, '');
 
+/**
+ * Validate the new handle, ensuring that it's a subdomain of the new PDS hostname.
+ *
+ * @param value - The new handle to validate.
+ * @param newPdsHostname - The validated new PDS hostname.
+ * @returns A string error message or `true` if the handle is valid.
+ */
+export const validateNewHandle = (
+  value: string,
+  newPdsHostname: string,
+): string | true => {
+  if (!isValidHandle(value)) {
+    return 'Must be a valid handle';
+  }
+
+  return (
+    value.endsWith(`.${newPdsHostname}`) ||
+    'Must be a subdomain of the new PDS hostname'
+  );
+};
+
 export async function getCredentialsInteractive(): Promise<
   MigrationCredentials | undefined
 > {
@@ -49,10 +70,11 @@ export async function getCredentialsInteractive(): Promise<
     validate: validateUrl,
   });
 
+  const newPdsHostname = new URL(newPdsUrl).hostname;
+
   const newHandle = await input({
-    message:
-      'Enter the desired new handle (e.g. username.com, username.pds.me.com)',
-    validate: validateHandle,
+    message: `Enter the desired new handle (e.g. username.${newPdsHostname})`,
+    validate: (value) => validateNewHandle(value, newPdsHostname),
   });
 
   const newEmail = await input({
