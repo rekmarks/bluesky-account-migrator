@@ -1,6 +1,6 @@
 import { getCredentialsInteractive, validateString } from './credentials.js';
 import { input, pressEnter } from './prompts.js';
-import { Migration, MigrationState } from '../../migration/index.js';
+import { Migration } from '../../migration/index.js';
 import type { MigrationCredentials } from '../../migration/index.js';
 import {
   logError,
@@ -95,7 +95,7 @@ async function executeMigration(
  */
 async function beginMigration(migration: Migration): Promise<void> {
   const result = await migration.run();
-  if (result !== MigrationState.RequestedPlcOperation) {
+  if (result !== 'RequestedPlcOperation') {
     throw new Error(
       `Fatal: Unexpected migration state "${result}" after initial run. Please report this bug.`,
     );
@@ -136,7 +136,7 @@ async function promptForConfirmationToken(
  */
 async function finalizeMigration(migration: Migration): Promise<string> {
   const result = await migration.run();
-  if (result !== MigrationState.Finalized) {
+  if (result !== 'Finalized') {
     throw new Error(
       `Fatal: Unexpected migration state "${result}" after resuming migration. Please report this bug.`,
     );
@@ -166,7 +166,7 @@ function handleSuccess(privateKey: string): void {
 async function handleFailure(migration: Migration): Promise<void> {
   console.log();
   logError(`Error: Migration failed during state "${migration.state}"`);
-  if (migration.state !== MigrationState.Ready) {
+  if (migration.state !== 'Ready') {
     console.log();
     logError(
       'The migration has created a new account, but it may not be ready to use yet.',

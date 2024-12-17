@@ -24,6 +24,8 @@ const config = createConfig([
     },
 
     rules: {
+      'prefer-template': 'off',
+
       'import-x/no-useless-path-segments': 'off',
 
       'jsdoc/require-description': 'off',
@@ -61,6 +63,7 @@ const config = createConfig([
         },
       ],
       '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/prefer-reduce-type-parameter': 'off',
       '@typescript-eslint/unbound-method': 'off',
     },
   },

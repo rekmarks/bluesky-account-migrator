@@ -4,8 +4,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { handleMigrateInteractive } from './handler.js';
 import { input } from './prompts.js';
 import { makeMockCredentials } from '../../../test/utils.js';
-import type { MigrationCredentials } from '../../migration/index.js';
-import { Migration, MigrationState } from '../../migration/index.js';
+import type {
+  MigrationCredentials,
+  MigrationState,
+} from '../../migration/index.js';
+import { Migration } from '../../migration/index.js';
 
 vi.mock('../../utils/index.js', async (importOriginal) => ({
   ...(await importOriginal()),
@@ -57,7 +60,7 @@ describe('handleMigrateInteractive', () => {
       this.credentials = arg.credentials;
       this.newPrivateKey = mockPrivateKey;
       this.run = runMock;
-      this.state = MigrationState.Ready;
+      this.state = 'Ready';
       return this as unknown as Migration;
     });
     /* eslint-enable no-invalid-this */
@@ -69,8 +72,8 @@ describe('handleMigrateInteractive', () => {
 
     mockPrivateKey = '0xdeadbeef';
     runMock
-      .mockResolvedValueOnce(MigrationState.RequestedPlcOperation)
-      .mockResolvedValueOnce(MigrationState.Finalized);
+      .mockResolvedValueOnce('RequestedPlcOperation')
+      .mockResolvedValueOnce('Finalized');
 
     await handleMigrateInteractive();
 
@@ -110,7 +113,7 @@ describe('handleMigrateInteractive', () => {
   it('should handle a failed migration in the CreatedNewAccount state', async () => {
     runMock.mockImplementation(async function (this: MockMigration) {
       // eslint-disable-next-line no-invalid-this
-      this.state = MigrationState.CreatedNewAccount;
+      this.state = 'CreatedNewAccount';
       return Promise.reject(new Error('foo'));
     });
 
@@ -133,7 +136,7 @@ describe('handleMigrateInteractive', () => {
     mockPrivateKey = '0xdeadbeef';
     runMock.mockImplementation(async function (this: MockMigration) {
       // eslint-disable-next-line no-invalid-this
-      this.state = MigrationState.MigratedIdentity;
+      this.state = 'MigratedIdentity';
       return Promise.reject(new Error('foo'));
     });
 

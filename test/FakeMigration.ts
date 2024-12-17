@@ -1,22 +1,19 @@
-import { MigrationState } from '../src/migration/index.js';
+import { MigrationStateSchema, stateUtils } from '../src/migration/index.js';
 import type {
   AgentPair,
   Migration as ActualMigration,
   MigrationCredentials,
+  SerializedMigration,
+  MigrationState,
 } from '../src/migration/index.js';
 import type { PickPublic } from '../src/utils/misc.js';
-
-export { MigrationState };
 
 const failureCondition = getFailureCondition();
 
 const mockAccountDid = 'did:plc:testuser123';
 
-const getStateIndex = (state: MigrationState) =>
-  Object.values(MigrationState).indexOf(state);
-
 export class Migration implements PickPublic<ActualMigration> {
-  state: MigrationState = MigrationState.Ready;
+  state: MigrationState = 'Ready';
 
   credentials: MigrationCredentials;
 
@@ -37,10 +34,10 @@ export class Migration implements PickPublic<ActualMigration> {
   }
 
   async run(): Promise<MigrationState> {
-    if (this.state === MigrationState.Ready) {
-      this.state = MigrationState.RequestedPlcOperation;
+    if (this.state === 'Ready') {
+      this.state = 'RequestedPlcOperation';
     } else {
-      this.state = MigrationState.Finalized;
+      this.state = 'Finalized';
     }
     this.#maybeFail();
     return this.state;
@@ -48,7 +45,7 @@ export class Migration implements PickPublic<ActualMigration> {
 
   #maybeFail() {
     if (failureCondition) {
-      if (getStateIndex(this.state) >= getStateIndex(failureCondition)) {
+      if (stateUtils.gte(this.state, failureCondition)) {
         this.state = failureCondition;
         throw new Error(`Migration failed during state "${this.state}"`);
       }
@@ -56,15 +53,25 @@ export class Migration implements PickPublic<ActualMigration> {
   }
 
   async teardown(): Promise<void> {
-    this.state = MigrationState.Finalized;
+    this.state = 'Finalized';
+  }
+
+  serialize(): SerializedMigration {
+    const data: SerializedMigration = {
+      state: this.state,
+      credentials: this.credentials,
+      confirmationToken: this.confirmationToken,
+      newPrivateKey: this.newPrivateKey,
+    };
+    return data;
   }
 }
 
 function getFailureCondition() {
   // eslint-disable-next-line n/no-process-env
   const condition = process.env.FAILURE_CONDITION ?? undefined;
-  if (condition) {
-    if (condition in MigrationState) {
+  if (condition !== undefined) {
+    if (MigrationStateSchema.safeParse(condition).success) {
       return condition as MigrationState;
     }
     throw new Error(`Invalid failure condition: ${condition}`);

@@ -19,6 +19,7 @@ export const migrateCommand: CommandModule<MigrateOptions> = {
       describe: 'Run in interactive mode',
       type: 'string',
       default: 'interactive',
+      // TODO: ['args', 'a', 'file', 'f', 'interactive', 'i']
       choices: ['interactive', 'i'],
     }) as Argv<{ mode: Mode }>;
   },
