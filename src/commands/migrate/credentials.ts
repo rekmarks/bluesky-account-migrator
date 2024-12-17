@@ -19,9 +19,6 @@ export const validateHandle = (value: string) =>
 
 export const stripHandlePrefix = (value: string) => value.replace(/^@/u, '');
 
-export const finalizeHandle = (rawHandle: string, pdsUrl: string) =>
-  `${stripHandlePrefix(rawHandle)}.${new URL(pdsUrl).hostname}`;
-
 export async function getCredentialsInteractive(): Promise<
   MigrationCredentials | undefined
 > {
@@ -31,11 +28,11 @@ export async function getCredentialsInteractive(): Promise<
     validate: validateUrl,
   });
 
-  const rawOldHandle = await input({
-    message: 'Enter the current handle, excluding the PDS URL',
+  const oldHandle = await input({
+    message:
+      'Enter the full current handle (e.g. username.bsky.social, username.com)',
     validate: validateHandle,
   });
-  const oldHandle = finalizeHandle(rawOldHandle, oldPdsUrl);
 
   const oldPassword = await password({
     message: 'Enter the password for the current account',
@@ -52,11 +49,11 @@ export async function getCredentialsInteractive(): Promise<
     validate: validateUrl,
   });
 
-  const rawNewHandle = await input({
-    message: 'Enter the desired new handle, excluding the PDS URL',
+  const newHandle = await input({
+    message:
+      'Enter the desired new handle (e.g. username.com, username.pds.me.com)',
     validate: validateHandle,
   });
-  const newHandle = finalizeHandle(rawNewHandle, newPdsUrl);
 
   const newEmail = await input({
     message: 'Enter the desired email address for the new account',
