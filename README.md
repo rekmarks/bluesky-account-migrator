@@ -36,7 +36,7 @@ of this package is based on the snippet in that guide.
 ### Requirements
 
 - A `did:plc` Bluesky account
-  - If you're unsure what this means, you almost certainly have it.
+  - If don't know what this means, you're almost certainly fine.
 - A PDS to migrate to
   - Ideally, this PDS has SMTP enabled in order to verify your email.
     Bluesky the app will ask you to do this for the new account.
