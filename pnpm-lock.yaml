@@ -59,7 +59,7 @@ importers:
         version: 1.0.0(@metamask/eslint-config@14.0.0(eslint-config-prettier@9.1.0(eslint@9.17.0))(eslint-plugin-import-x@4.5.0(eslint@9.17.0)(typescript@5.7.2))(eslint-plugin-jsdoc@50.6.1(eslint@9.17.0))(eslint-plugin-prettier@5.2.1(eslint-config-prettier@9.1.0(eslint@9.17.0))(eslint@9.17.0)(prettier@3.4.2))(eslint-plugin-promise@7.2.1(eslint@9.17.0))(eslint@9.17.0)(prettier@3.4.2))(@vitest/eslint-plugin@1.1.16(@typescript-eslint/utils@8.18.0(eslint@9.17.0)(typescript@5.7.2))(eslint@9.17.0)(typescript@5.7.2)(vitest@2.1.8(@types/node@22.10.2)))(eslint@9.17.0)
       '@ts-bridge/cli':
         specifier: ^0.6.1
-        version: 0.6.1(typescript@5.7.2)
+        version: 0.6.2(typescript@5.7.2)
       '@tsconfig/node22':
         specifier: ^22.0.0
         version: 22.0.0
@@ -840,8 +840,8 @@ packages:
   '@scure/bip39@1.3.0':
     resolution: {integrity: sha512-disdg7gHuTDZtY+ZdkmLpPCk7fxZSu3gBiEGuoC1XYxv9cGx3Z6cpTggCgW6odSOOIXCiDjuGejW+aJKCY/pIQ==}
 
-  '@ts-bridge/cli@0.6.1':
-    resolution: {integrity: sha512-z0xScWe7E5lRNnCKvCKW4+5GVevJFnUYvTgE9qjhFop60YCxw/F56STWf7T1kVrNCgrINxyT4KLMI5O8pdpxRA==}
+  '@ts-bridge/cli@0.6.2':
+    resolution: {integrity: sha512-RBIdxaTp/QNNi3WFHhPoj2c+KWYT6dxFNDTZTMUYr06asituLvAazx7n6I1AEVtotIJc/k6Qng75g1Q+7CXjgQ==}
     engines: {node: ^18.18 || ^20 || >=22}
     hasBin: true
     peerDependencies:
@@ -2877,7 +2877,7 @@ snapshots:
       '@noble/hashes': 1.4.0
       '@scure/base': 1.1.9
 
-  '@ts-bridge/cli@0.6.1(typescript@5.7.2)':
+  '@ts-bridge/cli@0.6.2(typescript@5.7.2)':
     dependencies:
       '@ts-bridge/resolver': 0.2.0
       chalk: 5.3.0
