@@ -6,9 +6,9 @@ import packageJson from 'bluesky-account-migrator/package.json' assert { type: '
 
 export async function cli(argv: string[], commands: Commands) {
   await yargs(hideBin(argv))
-    .scriptName('bluesky-account-migrator')
+    .scriptName('bam')
     .strict()
-    .usage('Usage: $0 <command> [options]')
+    .usage('Usage: $0 [command] [options]')
     .version(packageJson.version)
     .help()
     .showHelpOnFail(false)
