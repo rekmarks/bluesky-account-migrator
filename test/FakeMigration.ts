@@ -92,7 +92,6 @@ export class Migration implements PickPublic<ActualMigration> {
 }
 
 function getFailureCondition() {
-  // eslint-disable-next-line n/no-process-env
   const condition = process.env.FAILURE_CONDITION ?? undefined;
   if (condition !== undefined) {
     if (MigrationStateSchema.safeParse(condition).success) {
