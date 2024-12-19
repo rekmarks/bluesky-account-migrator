@@ -2,10 +2,12 @@ import type { Argv, CommandModule as RawCommandModule } from 'yargs';
 
 import { handleInteractive } from './interactive.js';
 import { handlePipe } from './pipe.js';
+import { makeHandler } from '../../utils/cli.js';
+import type { BaseArgv } from '../../utils/cli.js';
 
 type Mode = 'interactive' | 'i' | 'stdin' | 's';
 
-export type MigrateOptions = {
+export type MigrateOptions = BaseArgv & {
   mode: Mode;
 };
 
@@ -25,7 +27,7 @@ export const migrateCommand: CommandModule<MigrateOptions> = {
       })
       .demandOption('mode') as Argv<MigrateOptions>;
   },
-  handler: async (argv) => {
+  handler: makeHandler(async (argv) => {
     if (argv.mode.startsWith('i')) {
       await handleInteractive();
     } else if (argv.mode.startsWith('p')) {
@@ -36,7 +38,7 @@ export const migrateCommand: CommandModule<MigrateOptions> = {
         `Fatal: Migration mode not yet implemented: ${argv.mode}`,
       );
     }
-  },
+  }),
 };
 
 export const defaultCommand: CommandModule<MigrateOptions> = {

@@ -48,6 +48,10 @@ export const handleUnknownError = (message: string, error: unknown): Error => {
     : new Error(message, { cause: error });
 };
 
+export const intoError = (error: unknown): Error => {
+  return error instanceof Error ? error : new Error(String(error));
+};
+
 /**
  * Pick non-`#` properties from a type.
  *
