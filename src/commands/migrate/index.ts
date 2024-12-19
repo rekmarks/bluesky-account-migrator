@@ -12,7 +12,7 @@ export type MigrateOptions = BaseArgv & {
 
 type CommandModule<Args> = RawCommandModule<Record<string, unknown>, Args>;
 
-const modeGroupLabel = 'Mode (choose one)';
+const modeGroupLabel = 'Mode (choose one):';
 
 export const migrateCommand: CommandModule<MigrateOptions> = {
   command: '$0 [options]',
