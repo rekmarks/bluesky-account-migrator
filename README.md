@@ -61,8 +61,12 @@ for how to do this.
 The CLI has a single command `migrate`, which you can run using e.g. `npx`:
 
 ```text
-npx bluesky-account-migrator migrate
+npx bluesky-account-migrator migrate [--mode <mode>]
 ```
+
+The CLI has two modes.
+
+#### `interactive`
 
 This will interactively walk you through migrating your Bluesky account from one PDS to
 another. It will collect most of the necessary information upfront, such as the PDS URLs,
@@ -85,6 +89,108 @@ An email should have been sent to the old account's email address.
 If the challenge token is correct, the migration should complete successfully.
 At the end of the migration, the private recovery key will be printed to the terminal.
 You must save this key in a secure location, or you could lose access to your account.
+
+#### `pipe`
+
+This causes the CLI to read from `stdin` and write to `stdout`. It will only output
+the results of running the migraiton to `stdout`, and any errors or other logs will
+be written to `stderr`.
+
+Given a file `credentials.json` with the following contents:
+
+```json
+{
+  "credentials": {
+    "oldPdsUrl": "https://old.bsky.social",
+    "newPdsUrl": "https://new.bsky.social",
+    "oldHandle": "old.handle.com",
+    "oldPassword": "oldpass123",
+    "newHandle": "new.handle.com",
+    "newEmail": "new@email.com",
+    "newPassword": "newpass123",
+    "inviteCode": "invite-123"
+  }
+}
+```
+
+The CLI can then be invoked as follows:
+
+```bash
+cat credentials.json | npx bluesky-account-migrator --mode pipe > result.json
+```
+
+If the credentials are correct, `result.json` should look like this:
+
+```json
+{
+  "state": "RequestedPlcOperation",
+  "credentials": {
+    "oldPdsUrl": "https://old.bsky.social",
+    "newPdsUrl": "https://new.bsky.social",
+    "oldHandle": "old.handle.com",
+    "oldPassword": "oldpass123",
+    "newHandle": "new.handle.com",
+    "newEmail": "new@email.com",
+    "newPassword": "newpass123",
+    "inviteCode": "invite-123"
+  }
+}
+```
+
+In this state, the migration should have dispatched a challenge email to the email
+associated with the account on the old PDS. Once you have retrieved the confirmation
+token from the email, you can complete the migration like so:
+
+```bash
+cat result.json | \
+  jq '. + {"confirmationToken": "<Token>"}' | \
+  npx bluesky-account-migrator migrate --mode pipe > \
+  finalResult.json
+```
+
+If the confirmation token is correct, `finalResult.json` should look like this:
+
+```json
+{
+  "state": "Finalized",
+  "credentials": {
+    "oldPdsUrl": "https://old.bsky.social",
+    "newPdsUrl": "https://new.bsky.social",
+    "oldHandle": "old.handle.com",
+    "oldPassword": "oldpass123",
+    "newHandle": "new.handle.com",
+    "newEmail": "new@email.com",
+    "newPassword": "newpass123",
+    "inviteCode": "invite-123"
+  },
+  "confirmationToken": "<Token>",
+  "newPrivateKey": "<PrivateKey>"
+}
+```
+
+> [!IMPORTANT]
+> If the migration fails the CLI will exit with a non-zero error code, but the result
+> will still be written to `stdout`. This enables retrieving the generated private key,
+> if any.
+>
+> To retrieve the migration output, you **must** ensure that your script handles failures
+> appropriately. For example, you cannot naively use `set -e` in Bash, since that would
+> prevent capturing the output on failure.
+> Instead, capture the output and check the exit code separately:
+>
+> ```bash
+> output=$(cat result.json | npx bluesky-account-migrator migrate --mode pipe)
+> exit_code=$?
+>
+> if [ $exit_code -ne 0 ]; then
+>   echo "Migration failed with exit code $exit_code" >&2
+>   echo "Output was:" >&2
+>   echo "$output" >&2
+>   exit $exit_code
+> fi
+>
+> echo "$output" > finalResult.json
+> ```
 
 ### API
 
