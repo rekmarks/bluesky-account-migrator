@@ -54,7 +54,9 @@
     "lint:misc": "prettier '**/*.json' '**/*.md' '**/*.yml' '!CHANGELOG.md' '!pnpm-lock.yaml' --ignore-path .gitignore --no-error-on-unmatched-pattern",
     "lint:types": "tsc --noEmit",
     "lint:fix": "pnpm lint:eslint --fix && pnpm lint:misc --write && pnpm lint:types && pnpm lint:changelog && pnpm lint:dependencies",
-    "test": "vitest run"
+    "test": "pnpm test:unit && pnpm test:e2e",
+    "test:unit": "vitest run",
+    "test:e2e": "vitest run -c vitest.config.e2e.ts"
   },
   "dependencies": {
     "@atproto/api": "^0.13.19",
