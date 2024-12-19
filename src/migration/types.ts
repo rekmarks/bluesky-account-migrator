@@ -1,6 +1,8 @@
 import type { AtpAgent } from '@atproto/api';
 import type { TypeOf } from 'zod';
-import { object, string, enum as zEnum, union } from 'zod';
+import { custom, enum as zEnum, object, string, union } from 'zod';
+
+import { isEmail, isHandle, isHttpUrl } from '../utils/index.js';
 
 const migrationStateValues = Object.freeze([
   'Ready',
@@ -29,33 +31,47 @@ const stateIndices = Object.freeze(
 const getStateIndex = (state: MigrationState): number => stateIndices[state];
 
 export const stateUtils = {
-  lt: (state: MigrationState, other: MigrationState): boolean =>
-    getStateIndex(state) < getStateIndex(other),
-
   gte: (state: MigrationState, other: MigrationState): boolean =>
     getStateIndex(state) >= getStateIndex(other),
 };
 
-const MigrationCredentials = object({
-  oldPdsUrl: string(),
-  newPdsUrl: string(),
-  oldHandle: string(),
-  oldPassword: string(),
-  newHandle: string(),
-  newEmail: string(),
-  newPassword: string(),
-  inviteCode: string(),
+const HttpUrl = custom<string>(isHttpUrl, 'Must be a valid HTTP or HTTPS URL');
+const Handle = custom<string>(isHandle, 'Must be a valid handle');
+const Email = custom<string>(isEmail, 'Must be a valid email address');
+export const NonEmptyStringSchema = custom<string>(
+  (value) => typeof value === 'string' && value.length > 0,
+  'Must be a non-empty string',
+);
+
+export const MigrationCredentialsSchema = object({
+  oldPdsUrl: HttpUrl,
+  newPdsUrl: HttpUrl,
+  oldHandle: Handle,
+  oldPassword: NonEmptyStringSchema,
+  newHandle: Handle,
+  newEmail: Email,
+  newPassword: NonEmptyStringSchema,
+  inviteCode: NonEmptyStringSchema,
 });
+
+export const makeMigrationCredentials = (
+  value: unknown,
+): MigrationCredentials => MigrationCredentialsSchema.parse(value);
+
+export const isMigrationCredentials = (
+  value: unknown,
+): value is MigrationCredentials =>
+  MigrationCredentialsSchema.safeParse(value).success;
 
 const InitialSerializedMigration = object({
   state: MigrationStateSchema.exclude(['MigratedIdentity', 'Finalized']),
-  credentials: MigrationCredentials,
+  credentials: MigrationCredentialsSchema,
   confirmationToken: string().optional(),
 });
 
 const UltimateSerializedMigration = object({
   state: MigrationStateSchema.extract(['MigratedIdentity', 'Finalized']),
-  credentials: MigrationCredentials,
+  credentials: MigrationCredentialsSchema,
   confirmationToken: string(),
   newPrivateKey: string(),
 });
@@ -67,7 +83,7 @@ export const SerializedMigrationSchema = union([
 
 export type SerializedMigration = TypeOf<typeof SerializedMigrationSchema>;
 
-export type MigrationCredentials = TypeOf<typeof MigrationCredentials>;
+export type MigrationCredentials = TypeOf<typeof MigrationCredentialsSchema>;
 
 export type AgentPair = {
   oldAgent: AtpAgent;

@@ -1,9 +1,10 @@
 import type { Mock, MockInstance } from 'vitest';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { handleMigrateInteractive } from './handler.js';
+import { handleInteractive } from './interactive.js';
 import { input } from './prompts.js';
 import { makeMockCredentials } from '../../../test/utils.js';
+import type { MockMigration } from '../../../test/utils.js';
 import type {
   MigrationCredentials,
   MigrationState,
@@ -33,15 +34,6 @@ vi.mock('./credentials.js', async (importOriginal) => ({
     Promise.resolve(makeMockCredentials()),
   ),
 }));
-
-type MockMigration = {
-  credentials: MigrationCredentials;
-  confirmationToken?: string | undefined;
-  newPrivateKey?: string | undefined;
-  calls: number;
-  run: Mock<() => Promise<MigrationState>> | undefined;
-  state: MigrationState;
-};
 
 describe('handleMigrateInteractive', () => {
   let mockPrivateKey: string | undefined;
@@ -75,7 +67,7 @@ describe('handleMigrateInteractive', () => {
       .mockResolvedValueOnce('RequestedPlcOperation')
       .mockResolvedValueOnce('Finalized');
 
-    await handleMigrateInteractive();
+    await handleInteractive();
 
     expect(vi.mocked(Migration).mock.instances[0]?.confirmationToken).toBe(
       mockToken,
@@ -97,7 +89,7 @@ describe('handleMigrateInteractive', () => {
   it('should handle a failed migration in the Ready state', async () => {
     runMock.mockRejectedValueOnce(new Error('foo'));
 
-    await expect(handleMigrateInteractive()).rejects.toThrow(new Error('foo'));
+    await expect(handleInteractive()).rejects.toThrow(new Error('foo'));
 
     expect(logSpy).toHaveBeenCalledWith(
       expect.stringContaining('Migration failed during state "Ready"'),
@@ -117,7 +109,7 @@ describe('handleMigrateInteractive', () => {
       return Promise.reject(new Error('foo'));
     });
 
-    await expect(handleMigrateInteractive()).rejects.toThrow(new Error('foo'));
+    await expect(handleInteractive()).rejects.toThrow(new Error('foo'));
 
     expect(logSpy).toHaveBeenCalledWith(
       expect.stringContaining(
@@ -140,7 +132,7 @@ describe('handleMigrateInteractive', () => {
       return Promise.reject(new Error('foo'));
     });
 
-    await expect(handleMigrateInteractive()).rejects.toThrow(new Error('foo'));
+    await expect(handleInteractive()).rejects.toThrow(new Error('foo'));
 
     expect(logSpy).toHaveBeenCalledWith(
       expect.stringContaining(

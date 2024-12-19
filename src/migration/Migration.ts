@@ -1,5 +1,3 @@
-import { ZodError } from 'zod';
-
 import * as operations from './operations/index.js';
 import { initializeAgents } from './operations/index.js';
 import type {
@@ -13,11 +11,11 @@ import {
   SerializedMigrationSchema,
   stateUtils,
 } from './types.js';
-import { stringify } from '../utils/index.js';
+import { handleUnknownError } from '../utils/index.js';
 
 type BaseData = {
   credentials: MigrationCredentials;
-  confirmationToken?: string;
+  confirmationToken?: string | undefined;
 };
 
 type FinalData = {
@@ -193,12 +191,8 @@ export class Migration {
     try {
       return SerializedMigrationSchema.parse(data);
     } catch (error) {
-      const issues = error instanceof ZodError ? error.issues : undefined;
-      throw new Error(
-        `Invalid migration data: failed to parse.` +
-          (issues ? '\n' + issues.map(stringify).join('\n') : ''),
-        { cause: error },
-      );
+      const message = 'Invalid migration data: failed to parse';
+      throw handleUnknownError(message, error);
     }
   }
 

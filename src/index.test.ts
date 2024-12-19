@@ -6,9 +6,8 @@ describe('index', () => {
   it('should have the expected exports', () => {
     expect(Object.keys(index).sort()).toStrictEqual([
       'Migration',
-      'MigrationState',
+      'isHandle',
       'isHttpUrl',
-      'isValidHandle',
       'operations',
     ]);
   });

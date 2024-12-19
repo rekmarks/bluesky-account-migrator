@@ -177,7 +177,6 @@ describe('Migration', () => {
       await migration.run();
       const finalState = migration.serialize();
 
-      // TODO:next the agents end up in here, somehow
       expect(finalState).toStrictEqual({
         state: 'Finalized',
         credentials: mockCredentials,

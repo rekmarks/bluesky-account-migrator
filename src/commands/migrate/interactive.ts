@@ -11,7 +11,10 @@ import {
   logWrapped,
 } from '../../utils/index.js';
 
-export async function handleMigrateInteractive(): Promise<void> {
+/**
+ * Handles the interactive migration mode.
+ */
+export async function handleInteractive(): Promise<void> {
   logIntroduction();
 
   const { credentials, migration } = (await initializeMigration()) ?? {};

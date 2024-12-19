@@ -1,7 +1,9 @@
-export const isObject = (
+import { ZodError } from 'zod';
+
+export const isPlainObject = (
   value: unknown,
 ): value is Record<string | number | symbol, unknown> =>
-  typeof value === 'object' && value !== null;
+  typeof value === 'object' && value !== null && !Array.isArray(value);
 
 /**
  * @param value - The value to check.
@@ -19,7 +21,32 @@ export const isHttpUrl = (value: unknown): boolean => {
   }
 };
 
+export const isEmail = (value: unknown): boolean => {
+  if (typeof value !== 'string') {
+    return false;
+  }
+
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/u.test(value);
+};
+
 export const stringify = (value: unknown) => JSON.stringify(value, null, 2);
+
+/**
+ * Handle an unknown error. Includes special handling for {@link ZodError} errors.
+ *
+ * @param message - The message to display.
+ * @param error - The error to display.
+ * @returns The readable error.
+ */
+export const handleUnknownError = (message: string, error: unknown): Error => {
+  return error instanceof ZodError
+    ? new Error(
+        message +
+          (error.issues ? '\n' + error.issues.map(stringify).join('\n') : ''),
+        { cause: error },
+      )
+    : new Error(message, { cause: error });
+};
 
 /**
  * Pick non-`#` properties from a type.

@@ -1,16 +1,22 @@
-import { MigrationStateSchema, stateUtils } from '../src/migration/index.js';
+import {
+  MigrationStateSchema,
+  SerializedMigrationSchema,
+  stateUtils,
+} from '../src/migration/index.js';
 import type {
   AgentPair,
-  Migration as ActualMigration,
   MigrationCredentials,
   SerializedMigration,
   MigrationState,
+  Migration as ActualMigration,
 } from '../src/migration/index.js';
 import type { PickPublic } from '../src/utils/misc.js';
 
 const failureCondition = getFailureCondition();
 
 const mockAccountDid = 'did:plc:testuser123';
+
+const mockNewPrivateKey = '0xdeadbeef';
 
 export class Migration implements PickPublic<ActualMigration> {
   state: MigrationState = 'Ready';
@@ -19,9 +25,9 @@ export class Migration implements PickPublic<ActualMigration> {
 
   accountDid = mockAccountDid;
 
-  newPrivateKey = '0xdeadbeef';
+  newPrivateKey: string | undefined = mockNewPrivateKey;
 
-  confirmationToken = '123456';
+  confirmationToken: string | undefined = '123456';
 
   agents = {
     oldAgent: {},
@@ -33,11 +39,27 @@ export class Migration implements PickPublic<ActualMigration> {
     this.credentials = credentials;
   }
 
+  static async deserialize(data: SerializedMigration): Promise<Migration> {
+    const parsed = SerializedMigrationSchema.parse(data);
+
+    const migration = new Migration(parsed);
+    migration.state = parsed.state;
+    migration.confirmationToken =
+      'confirmationToken' in parsed ? parsed.confirmationToken : undefined;
+    migration.newPrivateKey =
+      'newPrivateKey' in parsed ? parsed.newPrivateKey : undefined;
+
+    return migration;
+  }
+
   async run(): Promise<MigrationState> {
-    if (this.state === 'Ready') {
+    if (this.state === 'Ready' && this.confirmationToken === undefined) {
       this.state = 'RequestedPlcOperation';
     } else {
       this.state = 'Finalized';
+      if (this.newPrivateKey === undefined) {
+        this.newPrivateKey = mockNewPrivateKey;
+      }
     }
     this.#maybeFail();
     return this.state;
@@ -60,10 +82,12 @@ export class Migration implements PickPublic<ActualMigration> {
     const data: SerializedMigration = {
       state: this.state,
       credentials: this.credentials,
-      confirmationToken: this.confirmationToken,
-      newPrivateKey: this.newPrivateKey,
+      // Lie about these
+      confirmationToken: this.confirmationToken as string,
+      newPrivateKey: this.newPrivateKey as string,
     };
-    return data;
+    // Strip undefined values
+    return JSON.parse(JSON.stringify(data));
   }
 }
 

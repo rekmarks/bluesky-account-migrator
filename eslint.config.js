@@ -24,6 +24,7 @@ const config = createConfig([
     },
 
     rules: {
+      'no-void': 'off',
       'prefer-template': 'off',
 
       'import-x/no-useless-path-segments': 'off',
