@@ -2,8 +2,17 @@ import boxen from 'boxen';
 import { bold, green } from 'yoctocolors-cjs';
 
 import { confirm, input, password } from './prompts.js';
-import type { MigrationCredentials } from '../../migration/index.js';
-import { isHttpUrl, isValidHandle } from '../../utils/index.js';
+import {
+  makeMigrationCredentials,
+  type MigrationCredentials,
+} from '../../migration/index.js';
+import {
+  isEmail,
+  isHttpUrl,
+  isHandle,
+  handleUnknownError,
+  stringify,
+} from '../../utils/index.js';
 
 export const validateUrl = (value: string) =>
   isHttpUrl(value) || 'Must be a valid HTTP or HTTPS URL string';
@@ -12,10 +21,10 @@ export const validateString = (value: string) =>
   value.length > 0 || 'Must be a non-empty string';
 
 export const validateEmail = (value: string) =>
-  /^[^\s@]+@[^\s@]+\.[^\s@]+$/u.test(value) || 'Must be a valid email address';
+  isEmail(value) || 'Must be a valid email address';
 
 export const validateHandle = (value: string) =>
-  isValidHandle(value) || 'Must be a valid handle';
+  isHandle(value) || 'Must be a valid handle';
 
 export const stripHandlePrefix = (value: string) => value.replace(/^@/u, '');
 
@@ -30,7 +39,7 @@ export const validateNewHandle = (
   value: string,
   newPdsHostname: string,
 ): string | true => {
-  if (!isValidHandle(value)) {
+  if (!isHandle(value)) {
     return 'Must be a valid handle';
   }
 
@@ -91,7 +100,7 @@ export async function getCredentialsInteractive(): Promise<
     validate: (value) => value === newPassword || 'Passwords do not match',
   });
 
-  const credentials: MigrationCredentials = {
+  const rawCredentials = {
     oldPdsUrl,
     oldHandle,
     oldPassword,
@@ -101,6 +110,17 @@ export async function getCredentialsInteractive(): Promise<
     newEmail,
     newPassword,
   };
+
+  let credentials: MigrationCredentials;
+  try {
+    credentials = makeMigrationCredentials(rawCredentials);
+  } catch (error) {
+    logCredentials(rawCredentials);
+    throw handleUnknownError(
+      `Fatal: Unexpected credential parsing error:\n${stringify(rawCredentials)}`,
+      error,
+    );
+  }
 
   logCredentials(credentials);
 

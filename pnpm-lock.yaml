@@ -111,6 +111,9 @@ importers:
       vitest:
         specifier: ^2.1.8
         version: 2.1.8(@types/node@22.10.2)
+      zod:
+        specifier: ^3.24.1
+        version: 3.24.1
 
 packages:
 

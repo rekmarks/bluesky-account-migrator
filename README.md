@@ -108,7 +108,7 @@ const credentials = {
 const migration = new Migration({ credentials });
 
 let result = await migration.run();
-if (result !== MigrationState.RequestedPlcOperation) {
+if (result !== 'RequestedPlcOperation') {
   // Something has gone extremely wrong if this happens
   throw new Error('unexpected migration state');
 }
@@ -119,7 +119,7 @@ const confirmationToken = '...';
 migration.confirmationToken = confirmationToken;
 
 result = await migration.run();
-if (result !== MigrationState.Finalized) {
+if (result !== 'Finalized') {
   // Again, something has gone extremely wrong if this happens
   throw new Error('unexpected migration state');
 }
@@ -127,6 +127,25 @@ if (result !== MigrationState.Finalized) {
 // This is the recovery private key for the account, which must be stored
 // somewhere or risk the loss of the account
 storeSomewhereSafe(migration.newPrivateKey);
+```
+
+If you need to persist an unfinished migration, e.g. on failure or when getting
+the confirmation token, you can use the `serialize()`/`deserialize()` methods:
+
+```ts
+const migration = new Migration({ credentials });
+await migration.run();
+
+// NOTE: This will output the user's passwords and private key in plaintext,
+// if present.
+const serialized = migration.serialize();
+saveMigration(JSON.stringify(serialized, null, 2));
+
+// Later
+const savedMigration = loadMigration();
+const migration = Migration.deserialize(JSON.parse(savedMigration));
+migration.confirmationToken = confirmationToken;
+await migration.run();
 ```
 
 ### Troubleshooting

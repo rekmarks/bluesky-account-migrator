@@ -1,30 +1,33 @@
-import { MigrationState } from '../src/migration/index.js';
+import {
+  MigrationStateSchema,
+  SerializedMigrationSchema,
+  stateUtils,
+} from '../src/migration/index.js';
 import type {
   AgentPair,
-  Migration as ActualMigration,
   MigrationCredentials,
+  SerializedMigration,
+  MigrationState,
+  Migration as ActualMigration,
 } from '../src/migration/index.js';
 import type { PickPublic } from '../src/utils/misc.js';
-
-export { MigrationState };
 
 const failureCondition = getFailureCondition();
 
 const mockAccountDid = 'did:plc:testuser123';
 
-const getStateIndex = (state: MigrationState) =>
-  Object.values(MigrationState).indexOf(state);
+const mockNewPrivateKey = '0xdeadbeef';
 
 export class Migration implements PickPublic<ActualMigration> {
-  state: MigrationState = MigrationState.Ready;
+  state: MigrationState = 'Ready';
 
   credentials: MigrationCredentials;
 
   accountDid = mockAccountDid;
 
-  newPrivateKey = '0xdeadbeef';
+  newPrivateKey: string | undefined = mockNewPrivateKey;
 
-  confirmationToken = '123456';
+  confirmationToken: string | undefined = '123456';
 
   agents = {
     oldAgent: {},
@@ -36,11 +39,27 @@ export class Migration implements PickPublic<ActualMigration> {
     this.credentials = credentials;
   }
 
+  static async deserialize(data: SerializedMigration): Promise<Migration> {
+    const parsed = SerializedMigrationSchema.parse(data);
+
+    const migration = new Migration(parsed);
+    migration.state = parsed.state;
+    migration.confirmationToken =
+      'confirmationToken' in parsed ? parsed.confirmationToken : undefined;
+    migration.newPrivateKey =
+      'newPrivateKey' in parsed ? parsed.newPrivateKey : undefined;
+
+    return migration;
+  }
+
   async run(): Promise<MigrationState> {
-    if (this.state === MigrationState.Ready) {
-      this.state = MigrationState.RequestedPlcOperation;
+    if (this.state === 'Ready' && this.confirmationToken === undefined) {
+      this.state = 'RequestedPlcOperation';
     } else {
-      this.state = MigrationState.Finalized;
+      this.state = 'Finalized';
+      if (this.newPrivateKey === undefined) {
+        this.newPrivateKey = mockNewPrivateKey;
+      }
     }
     this.#maybeFail();
     return this.state;
@@ -48,7 +67,7 @@ export class Migration implements PickPublic<ActualMigration> {
 
   #maybeFail() {
     if (failureCondition) {
-      if (getStateIndex(this.state) >= getStateIndex(failureCondition)) {
+      if (stateUtils.gte(this.state, failureCondition)) {
         this.state = failureCondition;
         throw new Error(`Migration failed during state "${this.state}"`);
       }
@@ -56,15 +75,27 @@ export class Migration implements PickPublic<ActualMigration> {
   }
 
   async teardown(): Promise<void> {
-    this.state = MigrationState.Finalized;
+    this.state = 'Finalized';
+  }
+
+  serialize(): SerializedMigration {
+    const data: SerializedMigration = {
+      state: this.state,
+      credentials: this.credentials,
+      // Lie about these
+      confirmationToken: this.confirmationToken as string,
+      newPrivateKey: this.newPrivateKey as string,
+    };
+    // Strip undefined values
+    return JSON.parse(JSON.stringify(data));
   }
 }
 
 function getFailureCondition() {
   // eslint-disable-next-line n/no-process-env
   const condition = process.env.FAILURE_CONDITION ?? undefined;
-  if (condition) {
-    if (condition in MigrationState) {
+  if (condition !== undefined) {
+    if (MigrationStateSchema.safeParse(condition).success) {
       return condition as MigrationState;
     }
     throw new Error(`Invalid failure condition: ${condition}`);

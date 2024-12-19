@@ -1,8 +1,9 @@
 import type { Argv, CommandModule as RawCommandModule } from 'yargs';
 
-import { handleMigrateInteractive } from './handler.js';
+import { handleInteractive } from './interactive.js';
+import { handlePipe } from './pipe.js';
 
-type Mode = 'interactive' | 'i';
+type Mode = 'interactive' | 'i' | 'stdin' | 's';
 
 export type MigrateOptions = {
   mode: Mode;
@@ -15,18 +16,25 @@ export const migrateCommand: CommandModule<MigrateOptions> = {
   aliases: ['m'],
   describe: 'Perform a migration',
   builder: (yarg: Argv) => {
-    return yarg.positional('mode', {
-      describe: 'Run in interactive mode',
-      type: 'string',
-      default: 'interactive',
-      choices: ['interactive', 'i'],
-    }) as Argv<{ mode: Mode }>;
+    return yarg
+      .option('mode', {
+        describe: 'The migration mode to use',
+        type: 'string',
+        default: 'interactive',
+        choices: ['interactive', 'i', 'pipe', 'p'],
+      })
+      .demandOption('mode') as Argv<MigrateOptions>;
   },
   handler: async (argv) => {
     if (argv.mode.startsWith('i')) {
-      await handleMigrateInteractive();
+      await handleInteractive();
+    } else if (argv.mode.startsWith('p')) {
+      await handlePipe();
     } else {
-      throw new Error('Not yet implemented');
+      // This should never happen
+      throw new Error(
+        `Fatal: Migration mode not yet implemented: ${argv.mode}`,
+      );
     }
   },
 };
