@@ -58,11 +58,6 @@ export const makeMigrationCredentials = (
   value: unknown,
 ): MigrationCredentials => MigrationCredentialsSchema.parse(value);
 
-export const isMigrationCredentials = (
-  value: unknown,
-): value is MigrationCredentials =>
-  MigrationCredentialsSchema.safeParse(value).success;
-
 const InitialSerializedMigration = object({
   state: MigrationStateSchema.exclude(['MigratedIdentity', 'Finalized']),
   credentials: MigrationCredentialsSchema,
