@@ -290,6 +290,7 @@ export class Migration {
   async teardown() {
     this.#state = 'Finalized';
     const agents = this.#agents;
+    // Prevent re-entrancy
     this.#agents = undefined;
     if (agents) {
       await Promise.allSettled([
