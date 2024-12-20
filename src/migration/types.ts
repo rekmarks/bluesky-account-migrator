@@ -83,6 +83,23 @@ export const SerializedMigrationSchema = union([
 
 export type SerializedMigration = TypeOf<typeof SerializedMigrationSchema>;
 
+const PartialMigrationSchema = object({
+  credentials: object({}).passthrough(),
+  confirmationToken: string().optional(),
+}).strict();
+
+/**
+ * A "partial" migration is a migration with only the credentials and, optionally,
+ * a confirmation token set. We will assume that such a migration is in the
+ * "Ready" state.
+ */
+export type PartialSerializedMigration = TypeOf<typeof PartialMigrationSchema>;
+
+export const isPartialSerializedMigration = (
+  value: unknown,
+): value is PartialSerializedMigration =>
+  PartialMigrationSchema.safeParse(value).success;
+
 export type MigrationCredentials = TypeOf<typeof MigrationCredentialsSchema>;
 
 export type AgentPair = {

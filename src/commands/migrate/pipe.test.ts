@@ -3,15 +3,19 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { handlePipe } from './pipe.js';
 import { makeMockCredentials } from '../../../test/utils.js';
-import type { MockMigration } from '../../../test/utils.js';
-import { Migration } from '../../migration/index.js';
+import { Migration, operations } from '../../migration/index.js';
 import type { SerializedMigration } from '../../migration/types.js';
 
-vi.mock('../../migration/index.js', () => ({
-  Migration: {
-    deserialize: vi.fn(),
-  },
-}));
+vi.mock('../../migration/operations/index.js', async () => {
+  const { makeMockOperations } = await import('../../../test/utils.js');
+  return makeMockOperations({
+    initializeAgents: vi.fn().mockResolvedValue({
+      oldAgent: {},
+      newAgent: {},
+      accountDid: 'foo',
+    }),
+  });
+});
 
 type Stdin = typeof process.stdin;
 type Stdout = typeof process.stdout;
@@ -19,8 +23,6 @@ type Stdout = typeof process.stdout;
 describe('handlePipe', () => {
   let mockStdin: Readable;
   let mockStdout: Writable;
-  let mockMigration: MockMigration;
-  let mockSerializedMigration: SerializedMigration;
   let writtenOutput: string;
 
   beforeEach(() => {
@@ -38,99 +40,85 @@ describe('handlePipe', () => {
       },
     );
     vi.spyOn(process, 'stdout', 'get').mockReturnValue(mockStdout as Stdout);
-
-    mockMigration = {
-      run: vi.fn(),
-      serialize: vi.fn(),
-      deserialize: vi.fn(),
-      state: 'Ready',
-      confirmationToken: undefined,
-      newPrivateKey: undefined,
-      credentials: makeMockCredentials(),
-    };
-
-    mockSerializedMigration = {
-      state: 'Ready',
-      credentials: makeMockCredentials(),
-    };
-
-    vi.mocked(Migration.deserialize).mockResolvedValue(
-      mockMigration as unknown as Migration,
-    );
   });
 
   it('runs migration until RequestedPlcOperation when no confirmation token provided', async () => {
-    const expectedState = 'RequestedPlcOperation';
-    vi.mocked(mockMigration.run).mockResolvedValue(expectedState);
-
-    const serializedResult: SerializedMigration = {
-      ...mockSerializedMigration,
-      state: expectedState,
-    };
-    vi.mocked(mockMigration.serialize).mockReturnValue(serializedResult);
-
-    mockStdin.push(JSON.stringify(mockSerializedMigration));
-    mockStdin.push(null);
-
-    await handlePipe();
-
-    expect(Migration.deserialize).toHaveBeenCalledOnce();
-    expect(Migration.deserialize).toHaveBeenCalledWith(mockSerializedMigration);
-
-    expect(mockMigration.run).toHaveBeenCalledOnce();
-
-    expect(writtenOutput).toBe(JSON.stringify(serializedResult));
-  });
-
-  it('runs migration to completion when confirmation token provided', async () => {
     const inputData = {
-      ...mockSerializedMigration,
-      confirmationToken: 'test-token',
+      state: 'Ready',
+      credentials: makeMockCredentials(),
     };
-    const expectedState = 'Finalized';
-    const expectedPrivateKey = 'test-private-key';
-
-    mockMigration.confirmationToken = 'test-token';
-    mockMigration.newPrivateKey = expectedPrivateKey;
-    vi.mocked(mockMigration.run).mockResolvedValue(expectedState);
-
-    const serializedResult: SerializedMigration = {
-      ...inputData,
-      state: expectedState,
-      newPrivateKey: expectedPrivateKey,
-    };
-    vi.mocked(mockMigration.serialize).mockReturnValue(serializedResult);
 
     mockStdin.push(JSON.stringify(inputData));
     mockStdin.push(null);
 
     await handlePipe();
 
-    expect(Migration.deserialize).toHaveBeenCalledOnce();
-    expect(Migration.deserialize).toHaveBeenCalledWith(inputData);
+    expect(JSON.parse(writtenOutput)).toStrictEqual({
+      state: 'RequestedPlcOperation',
+      credentials: makeMockCredentials(),
+    });
+  });
 
-    expect(mockMigration.run).toHaveBeenCalledOnce();
+  it('runs migration to completion when confirmation token provided', async () => {
+    const inputData = {
+      state: 'Ready',
+      credentials: makeMockCredentials(),
+      confirmationToken: 'test-token',
+    };
 
-    expect(writtenOutput).toBe(JSON.stringify(serializedResult));
+    mockStdin.push(JSON.stringify(inputData));
+    mockStdin.push(null);
+
+    const expectedState = 'Finalized';
+    const expectedPrivateKey = 'test-private-key';
+
+    vi.mocked(operations.migrateIdentity).mockResolvedValue(expectedPrivateKey);
+
+    await handlePipe();
+
+    expect(JSON.parse(writtenOutput)).toStrictEqual({
+      ...inputData,
+      state: expectedState,
+      newPrivateKey: expectedPrivateKey,
+    });
+  });
+
+  it('handles partial migration', async () => {
+    const inputData = {
+      // No state
+      credentials: makeMockCredentials(),
+    };
+
+    mockStdin.push(JSON.stringify(inputData));
+    mockStdin.push(null);
+
+    await handlePipe();
+
+    expect(JSON.parse(writtenOutput)).toStrictEqual({
+      state: 'RequestedPlcOperation',
+      credentials: makeMockCredentials(),
+    });
   });
 
   it('outputs current state even when migration fails', async () => {
-    vi.mocked(mockMigration.run).mockRejectedValue(
+    const inputData: SerializedMigration = {
+      credentials: makeMockCredentials(),
+      state: 'Ready',
+    };
+
+    mockStdin.push(JSON.stringify(inputData));
+    mockStdin.push(null);
+
+    vi.mocked(operations.createNewAccount).mockRejectedValue(
       new Error('Migration failed'),
     );
 
-    const serializedResult: SerializedMigration = {
-      ...mockSerializedMigration,
-      state: 'Ready',
-    };
-    vi.mocked(mockMigration.serialize).mockReturnValue(serializedResult);
-
-    mockStdin.push(JSON.stringify(mockSerializedMigration));
-    mockStdin.push(null);
-
     await expect(handlePipe()).rejects.toThrow('Migration failed');
 
-    expect(writtenOutput).toBe(JSON.stringify(serializedResult));
+    expect(JSON.parse(writtenOutput)).toStrictEqual({
+      ...inputData,
+      state: 'Initialized',
+    });
   });
 
   it('handles invalid JSON input', async () => {
@@ -150,15 +138,16 @@ describe('handlePipe', () => {
   });
 
   it('handles unexpected migration state', async () => {
-    const unexpectedState = 'Initialized';
-    vi.mocked(mockMigration.run).mockResolvedValue(unexpectedState);
-    vi.mocked(mockMigration.serialize).mockReturnValue({
-      ...mockSerializedMigration,
-      state: unexpectedState,
-    });
+    const inputData: SerializedMigration = {
+      credentials: makeMockCredentials(),
+      state: 'Ready',
+    };
 
-    mockStdin.push(JSON.stringify(mockSerializedMigration));
+    mockStdin.push(JSON.stringify(inputData));
     mockStdin.push(null);
+
+    const unexpectedState = 'Finalized';
+    vi.spyOn(Migration.prototype, 'run').mockResolvedValue(unexpectedState);
 
     await expect(handlePipe()).rejects.toThrow(
       `Fatal: Unexpected migration state "${unexpectedState}" after initial run`,

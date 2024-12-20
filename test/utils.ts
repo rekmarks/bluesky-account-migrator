@@ -3,7 +3,7 @@ import type { HeadersMap } from '@atproto/xrpc';
 import type { Mock, Mocked } from 'vitest';
 import { vi } from 'vitest';
 
-import type { Migration } from '../src/migration/index.js';
+import type { Migration, operations } from '../src/migration/index.js';
 import type {
   MigrationCredentials,
   MigrationState,
@@ -29,6 +29,18 @@ export const makeMockCredentials = (): MigrationCredentials => ({
   newEmail: 'new@email.com',
   newPassword: 'newpass123',
   inviteCode: 'invite-123',
+});
+
+export const makeMockOperations = (
+  mocks: Partial<typeof operations> = {},
+): typeof operations => ({
+  initializeAgents: vi.fn(),
+  createNewAccount: vi.fn(),
+  migrateData: vi.fn(),
+  requestPlcOperation: vi.fn(),
+  migrateIdentity: vi.fn(),
+  finalize: vi.fn(),
+  ...mocks,
 });
 
 export const mockAccountDid = 'did:plc:testuser123';

@@ -1,4 +1,7 @@
-import { Migration } from '../../migration/index.js';
+import {
+  isPartialSerializedMigration,
+  Migration,
+} from '../../migration/index.js';
 import type { MigrationState } from '../../migration/types.js';
 import { handleUnknownError, isPlainObject } from '../../utils/index.js';
 
@@ -21,7 +24,12 @@ export async function handlePipe(): Promise<void> {
 
   let migration: Migration;
   try {
-    migration = await Migration.deserialize(rawCredentials);
+    migration = isPartialSerializedMigration(rawCredentials)
+      ? await Migration.deserialize({
+          ...rawCredentials,
+          state: 'Ready',
+        })
+      : await Migration.deserialize(rawCredentials);
   } catch (error) {
     throw handleUnknownError('Invalid migration arguments', error);
   }
