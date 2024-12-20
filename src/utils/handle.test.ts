@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
-import { isValidHandle } from './handle.js';
+import { isHandle } from './handle.js';
 
 describe('isValidHandle', () => {
   it.each([
@@ -39,6 +39,6 @@ describe('isValidHandle', () => {
     [`${'a'.repeat(64)}.bsky.social`, false, 'leftmost segment too long'],
     ['@handle.invalid', false, 'invalid character'],
   ])('%s should return %s (%s)', (handle, expected) => {
-    expect(isValidHandle(handle)).toBe(expected);
+    expect(isHandle(handle)).toBe(expected);
   });
 });

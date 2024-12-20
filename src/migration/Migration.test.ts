@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { Migration, MigrationState } from './Migration.js';
+import { Migration } from './Migration.js';
 import * as operations from './operations/index.js';
 import type { AgentPair, MigrationCredentials } from './types.js';
 import { makeMockCredentials, mockAccountDid } from '../../test/utils.js';
@@ -16,8 +16,8 @@ vi.mock('./operations/index.js', () => ({
 
 const makeMockAgents = (): AgentPair =>
   ({
-    oldAgent: { logout: vi.fn() },
-    newAgent: { logout: vi.fn() },
+    oldAgent: { login: vi.fn(), logout: vi.fn() },
+    newAgent: { login: vi.fn(), logout: vi.fn() },
     accountDid: mockAccountDid,
   }) as unknown as AgentPair;
 
@@ -48,8 +48,9 @@ describe('Migration', () => {
 
     it('accepts initial state', () => {
       const migration = new Migration(
-        { credentials: mockCredentials, agents: makeMockAgents() },
-        MigrationState.CreatedNewAccount,
+        { credentials: mockCredentials },
+        'CreatedNewAccount',
+        makeMockAgents(),
       );
       expect(migration.accountDid).toBe(mockAccountDid);
     });
@@ -62,7 +63,7 @@ describe('Migration', () => {
         confirmationToken: mockToken,
       });
 
-      expect(await migration.run()).toBe(MigrationState.Finalized);
+      expect(await migration.run()).toBe('Finalized');
 
       // Verify all transitions were called in order
       expect(operations.initializeAgents).toHaveBeenCalledWith({
@@ -91,13 +92,13 @@ describe('Migration', () => {
       const migration = new Migration(
         {
           credentials: mockCredentials,
-          agents,
           confirmationToken: mockToken,
         },
-        MigrationState.Initialized,
+        'Initialized',
+        agents,
       );
 
-      expect(await migration.run()).toBe(MigrationState.Finalized);
+      expect(await migration.run()).toBe('Finalized');
       expect(agents.oldAgent.logout).toHaveBeenCalled();
       expect(agents.newAgent.logout).toHaveBeenCalled();
     });
@@ -105,22 +106,23 @@ describe('Migration', () => {
     it('stops and resumes if confirmation token is missing during RequestedPlcOperation state', async () => {
       const migration = new Migration(
         { credentials: mockCredentials },
-        MigrationState.Ready,
+        'Ready',
       );
 
-      expect(await migration.run()).toBe(MigrationState.RequestedPlcOperation);
+      expect(await migration.run()).toBe('RequestedPlcOperation');
       expect(operations.migrateIdentity).not.toHaveBeenCalled();
 
       migration.confirmationToken = mockToken;
-      expect(await migration.run()).toBe(MigrationState.Finalized);
+      expect(await migration.run()).toBe('Finalized');
     });
   });
 
-  describe('setters', () => {
+  describe('getters and setters', () => {
     it('setting confirmationToken updates token in params', async () => {
       const migration = new Migration(
-        { credentials: mockCredentials, agents: makeMockAgents() },
-        MigrationState.MigratedData,
+        { credentials: mockCredentials },
+        'MigratedData',
+        makeMockAgents(),
       );
 
       migration.confirmationToken = mockToken;
@@ -129,6 +131,147 @@ describe('Migration', () => {
       expect(operations.migrateIdentity).toHaveBeenCalledWith({
         agents: agentsMatcher,
         confirmationToken: mockToken,
+      });
+    });
+  });
+
+  describe('serialize', () => {
+    it('serializes a migration in the Ready state', () => {
+      const migration = new Migration({ credentials: mockCredentials });
+      const serialized = migration.serialize();
+      expect(serialized).toStrictEqual({
+        state: 'Ready',
+        credentials: mockCredentials,
+      });
+    });
+
+    it('serializes a migration in the RequestedPlcOperation state', () => {
+      const migration = new Migration(
+        {
+          credentials: mockCredentials,
+          confirmationToken: mockToken,
+        },
+        'RequestedPlcOperation',
+        makeMockAgents(),
+      );
+      const initialState = migration.serialize();
+
+      expect(initialState).toStrictEqual({
+        state: 'RequestedPlcOperation',
+        credentials: mockCredentials,
+        confirmationToken: mockToken,
+      });
+    });
+
+    it('serializes a migration after running from RequestedPlcOperation state', async () => {
+      const migration = new Migration(
+        {
+          credentials: mockCredentials,
+          confirmationToken: mockToken,
+        },
+        'RequestedPlcOperation',
+        makeMockAgents(),
+      );
+
+      vi.mocked(operations.migrateIdentity).mockResolvedValue(mockPrivateKey);
+      await migration.run();
+      const finalState = migration.serialize();
+
+      expect(finalState).toStrictEqual({
+        state: 'Finalized',
+        credentials: mockCredentials,
+        confirmationToken: mockToken,
+        newPrivateKey: mockPrivateKey,
+      });
+    });
+  });
+
+  describe('deserialize', () => {
+    it('deserializes a migration in the Ready state', async () => {
+      const migration = await Migration.deserialize({
+        state: 'Ready',
+        credentials: mockCredentials,
+      });
+
+      expect(migration.state).toBe('Ready');
+    });
+
+    it('deserializes a migration in the RequestedPlcOperation state', async () => {
+      vi.mocked(operations.initializeAgents).mockResolvedValue(
+        makeMockAgents(),
+      );
+
+      const migration = await Migration.deserialize({
+        state: 'RequestedPlcOperation',
+        credentials: mockCredentials,
+        confirmationToken: mockToken,
+      });
+
+      expect(migration.state).toBe('RequestedPlcOperation');
+      expect(migration.confirmationToken).toBe(mockToken);
+    });
+
+    it('deserializes a migration in the Finalized state', async () => {
+      const migration = await Migration.deserialize({
+        state: 'Finalized',
+        credentials: mockCredentials,
+        confirmationToken: mockToken,
+        newPrivateKey: mockPrivateKey,
+      });
+
+      expect(migration.state).toBe('Finalized');
+      expect(migration.confirmationToken).toBe(mockToken);
+      expect(migration.newPrivateKey).toBe(mockPrivateKey);
+    });
+
+    it('deserializing a migration in the ready state does not restore agents', async () => {
+      await Migration.deserialize({
+        state: 'Ready',
+        credentials: mockCredentials,
+      });
+
+      expect(operations.initializeAgents).not.toHaveBeenCalled();
+    });
+
+    it('deserializing a migration in the CreatedNewAccount state restores agents', async () => {
+      const mockAgents = makeMockAgents();
+      vi.mocked(operations.initializeAgents).mockResolvedValue(mockAgents);
+
+      await Migration.deserialize({
+        state: 'CreatedNewAccount',
+        credentials: mockCredentials,
+      });
+
+      expect(operations.initializeAgents).toHaveBeenCalledOnce();
+      expect(operations.initializeAgents).toHaveBeenCalledWith({
+        credentials: mockCredentials,
+      });
+      expect(mockAgents.newAgent.login).toHaveBeenCalledOnce();
+      expect(mockAgents.newAgent.login).toHaveBeenCalledWith({
+        identifier: mockCredentials.newHandle,
+        password: mockCredentials.newPassword,
+      });
+    });
+
+    it('deserializing a migration in the MigratedIdentity state restores agents', async () => {
+      const mockAgents = makeMockAgents();
+      vi.mocked(operations.initializeAgents).mockResolvedValue(mockAgents);
+
+      await Migration.deserialize({
+        state: 'MigratedIdentity',
+        credentials: mockCredentials,
+        confirmationToken: mockToken,
+        newPrivateKey: mockPrivateKey,
+      });
+
+      expect(operations.initializeAgents).toHaveBeenCalledOnce();
+      expect(operations.initializeAgents).toHaveBeenCalledWith({
+        credentials: mockCredentials,
+      });
+      expect(mockAgents.newAgent.login).toHaveBeenCalledOnce();
+      expect(mockAgents.newAgent.login).toHaveBeenCalledWith({
+        identifier: mockCredentials.newHandle,
+        password: mockCredentials.newPassword,
       });
     });
   });

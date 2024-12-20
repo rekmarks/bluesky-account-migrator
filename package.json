@@ -44,16 +44,16 @@
   "scripts": {
     "build": "pnpm build:ts-bridge && pnpm build:chmod",
     "build:test": "pnpm build && pnpm build:test:fakes",
-    "build:test:fakes": "esbuild ./test/FakeMigration.ts --bundle --outfile=./dist/migration/Migration.mjs --format=esm --target=es2022 --platform=node --packages=external",
+    "build:test:fakes": "esbuild ./test/FakeMigration.ts --outfile=./dist/migration/Migration.mjs --bundle --format=esm --target=es2022 --platform=node --packages=external",
     "build:ts-bridge": "ts-bridge --project tsconfig.build.json --verbose --clean --no-references",
     "build:chmod": "chmod +x ./dist/main.mjs && chmod +x ./dist/main.cjs",
-    "lint": "pnpm lint:eslint && pnpm lint:misc --check && pnpm lint:changelog && pnpm lint:dependencies --check && pnpm lint:types",
+    "lint": "pnpm lint:eslint && pnpm lint:misc --check && pnpm lint:types && pnpm lint:changelog && pnpm lint:dependencies --check",
     "lint:changelog": "auto-changelog validate --prettier --repo https://github.com/rekmarks/bluesky-account-migrator.git",
     "lint:dependencies": "depcheck && pnpm dedupe",
     "lint:eslint": "eslint . --cache",
     "lint:misc": "prettier '**/*.json' '**/*.md' '**/*.yml' '!CHANGELOG.md' '!pnpm-lock.yaml' --ignore-path .gitignore --no-error-on-unmatched-pattern",
     "lint:types": "tsc --noEmit",
-    "lint:fix": "pnpm lint:eslint --fix && pnpm lint:misc --write && pnpm lint:changelog && pnpm lint:dependencies && pnpm lint:types",
+    "lint:fix": "pnpm lint:eslint --fix && pnpm lint:misc --write && pnpm lint:types && pnpm lint:changelog && pnpm lint:dependencies",
     "test": "vitest run"
   },
   "dependencies": {
@@ -92,7 +92,8 @@
     "eslint-plugin-vitest": "^0.5.4",
     "prettier": "^3.4.2",
     "typescript": "^5.7.2",
-    "vitest": "^2.1.8"
+    "vitest": "^2.1.8",
+    "zod": "^3.24.1"
   },
   "engines": {
     "node": "^18.20 || ^20.18 || >=22"

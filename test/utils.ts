@@ -1,9 +1,24 @@
 import type { AtpAgent } from '@atproto/api';
 import type { HeadersMap } from '@atproto/xrpc';
-import type { Mocked } from 'vitest';
+import type { Mock, Mocked } from 'vitest';
 import { vi } from 'vitest';
 
-import type { MigrationCredentials } from '../src/migration/types.js';
+import type { Migration, operations } from '../src/migration/index.js';
+import type {
+  MigrationCredentials,
+  MigrationState,
+  SerializedMigration,
+} from '../src/migration/types.js';
+
+export type MockMigration = {
+  credentials: MigrationCredentials;
+  confirmationToken?: string | undefined;
+  newPrivateKey?: string | undefined;
+  run: Mock<() => Promise<MigrationState>>;
+  state: MigrationState;
+  serialize: Mock<() => SerializedMigration>;
+  deserialize: Mock<() => Migration>;
+};
 
 export const makeMockCredentials = (): MigrationCredentials => ({
   oldPdsUrl: 'https://old.bsky.social',
@@ -14,6 +29,18 @@ export const makeMockCredentials = (): MigrationCredentials => ({
   newEmail: 'new@email.com',
   newPassword: 'newpass123',
   inviteCode: 'invite-123',
+});
+
+export const makeMockOperations = (
+  mocks: Partial<typeof operations> = {},
+): typeof operations => ({
+  initializeAgents: vi.fn(),
+  createNewAccount: vi.fn(),
+  migrateData: vi.fn(),
+  requestPlcOperation: vi.fn(),
+  migrateIdentity: vi.fn(),
+  finalize: vi.fn(),
+  ...mocks,
 });
 
 export const mockAccountDid = 'did:plc:testuser123';

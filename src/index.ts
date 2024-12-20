@@ -1,5 +1,8 @@
-import * as migration from './migration/index.js';
+export type { MigrationState } from './migration/index.js';
+export { Migration, operations } from './migration/index.js';
+export type {
+  MigrationCredentials,
+  SerializedMigration,
+} from './migration/index.js';
 
-export { migration };
-
-export { isHttpUrl, isValidHandle } from './utils/index.js';
+export { isHttpUrl, isHandle } from './utils/index.js';
