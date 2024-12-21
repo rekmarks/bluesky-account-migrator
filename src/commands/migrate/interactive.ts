@@ -168,7 +168,7 @@ function handleSuccess(privateKey: string): void {
 
 async function handleFailure(migration: Migration): Promise<void> {
   console.log();
-  logError(`Error: Migration failed during state "${migration.state}"`);
+  logError(`Migration failed during state "${migration.state}"`);
   if (migration.state !== 'Ready') {
     console.log();
     logError(
