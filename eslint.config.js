@@ -82,6 +82,13 @@ const config = createConfig([
 
     extends: [vitest],
   },
+
+  {
+    files: ['test/**/*'],
+    rules: {
+      'n/no-process-env': 'off',
+    },
+  },
 ]);
 
 export default config;
