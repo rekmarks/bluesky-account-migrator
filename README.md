@@ -40,6 +40,8 @@ of this package is based on the snippet in that guide.
 - A PDS to migrate to
   - Ideally, this PDS has SMTP enabled in order to verify your email.
     Bluesky the app will ask you to do this for the new account.
+- Two-factor authentication (2FA) disabled on your Bluesky account.
+  - This is only required for the duration of the migration.
 
 ### Gotchas
 
