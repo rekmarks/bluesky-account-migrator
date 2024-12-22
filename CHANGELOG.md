@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0]
+
+### Added
+
+- Add `--pipe` mode ([#28](https://github.com/rekmarks/bluesky-account-migrator/pull/28))
+  - This mode reads from `stdin` and writes to `stdout`.
+- Add `--debug` flag ([#29](https://github.com/rekmarks/bluesky-account-migrator/pull/29))
+  - This currently just controls whether stack traces are shown.
+- Add `serialize()`/`deserialize()` methods to `Migration` class ([#28](https://github.com/rekmarks/bluesky-account-migrator/pull/28))
+  - This makes it easier to restore/resume partially completed migrations.
+
+### Changed
+
+- **BREAKING:** Refactor main module exports ([#28](https://github.com/rekmarks/bluesky-account-migrator/pull/28))
+  - The `migration` module is removed and its names are instead floated to the top.
+- **BREAKING:** Replace `--mode` option with `--interactive` and `--pipe` flags ([#29](https://github.com/rekmarks/bluesky-account-migrator/pull/29))
+  - Basically, modes are now mutually exclusive flags instead of a single string option.
+- Make credential validation more stringent ([#28](https://github.com/rekmarks/bluesky-account-migrator/pull/28))
+  - This should catch errors at earlier stage.
+
 ## [0.2.1]
 
 ### Fixed
@@ -34,7 +54,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release ([#12](https://github.com/rekmarks/bluesky-account-migrator/pull/12))
 
-[Unreleased]: https://github.com/rekmarks/bluesky-account-migrator.git/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/rekmarks/bluesky-account-migrator.git/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/rekmarks/bluesky-account-migrator.git/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/rekmarks/bluesky-account-migrator.git/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/rekmarks/bluesky-account-migrator.git/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/rekmarks/bluesky-account-migrator.git/releases/tag/v0.1.0
