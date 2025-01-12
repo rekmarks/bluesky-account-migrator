@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0]
+
+### Added
+
+- **BREAKING:** Support custom handles on the new PDS ([#49](https://github.com/rekmarks/bluesky-account-migrator.git/pull/49))
+  - This required breaking the format of the `newHandle` credentials property. See documentation
+    for details.
+
 ## [0.3.0]
 
 ### Added
@@ -54,7 +62,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release ([#12](https://github.com/rekmarks/bluesky-account-migrator/pull/12))
 
-[Unreleased]: https://github.com/rekmarks/bluesky-account-migrator.git/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/rekmarks/bluesky-account-migrator.git/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/rekmarks/bluesky-account-migrator.git/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/rekmarks/bluesky-account-migrator.git/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/rekmarks/bluesky-account-migrator.git/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/rekmarks/bluesky-account-migrator.git/compare/v0.1.0...v0.2.0
