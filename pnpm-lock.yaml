@@ -13,7 +13,7 @@ importers:
         version: 0.13.26
       '@atproto/crypto':
         specifier: ^0.4.2
-        version: 0.4.2
+        version: 0.4.3
       '@inquirer/prompts':
         specifier: ^7.2.0
         version: 7.2.1(@types/node@22.10.5)
@@ -123,8 +123,8 @@ packages:
   '@atproto/common-web@0.3.2':
     resolution: {integrity: sha512-Vx0JtL1/CssJbFAb0UOdvTrkbUautsDfHNOXNTcX2vyPIxH9xOameSqLLunM1hZnOQbJwyjmQCt6TV+bhnanDg==}
 
-  '@atproto/crypto@0.4.2':
-    resolution: {integrity: sha512-aeOfPQYCDbhn2hV06oBF2KXrWjf/BK4yL8lfANJKSmKl3tKWCkiW/moi643rUXXxSE72KtWtQeqvNFYnnFJ0ig==}
+  '@atproto/crypto@0.4.3':
+    resolution: {integrity: sha512-YSSUAvkx+ldpXw97NXZWfLx/prgh5YJ2K0BCw51JCJmXSRp6KhhwvOm4J+K/s5hwpssyuDCVTXknyS4PHwaK5g==}
 
   '@atproto/lexicon@0.4.5':
     resolution: {integrity: sha512-fljWqMGKn+XWtTprBcS3F1hGBREnQYh6qYHv2sjENucc7REms1gtmZXSerB9N6pVeHVNOnXiILdukeAcic5OEw==}
@@ -2281,7 +2281,7 @@ snapshots:
       uint8arrays: 3.0.0
       zod: 3.24.1
 
-  '@atproto/crypto@0.4.2':
+  '@atproto/crypto@0.4.3':
     dependencies:
       '@noble/curves': 1.7.0
       '@noble/hashes': 1.6.1
