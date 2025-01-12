@@ -27,4 +27,18 @@ export async function finalize({
   });
   // ATTN: The call will fail without the `{}`
   await oldAgent.com.atproto.server.deactivateAccount({});
+
+  if ('finalHandle' in credentials.newHandle) {
+    try {
+      await newAgent.com.atproto.identity.updateHandle({
+        handle: credentials.newHandle.finalHandle,
+      });
+    } catch (error) {
+      const { temporaryHandle, finalHandle } = credentials.newHandle;
+      throw new Error(
+        `Account successfully migrated, but failed to update handle to "${finalHandle}". The current handle is "${temporaryHandle}".`,
+        { cause: error },
+      );
+    }
+  }
 }

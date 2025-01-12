@@ -35,7 +35,7 @@ describe('createNewAccount', () => {
 
     expect(newAgent.com.atproto.server.createAccount).toHaveBeenCalledWith(
       {
-        handle: mockCredentials.newHandle,
+        handle: mockCredentials.newHandle.handle,
         email: mockCredentials.newEmail,
         password: mockCredentials.newPassword,
         did: mockAccountDid,
@@ -48,7 +48,7 @@ describe('createNewAccount', () => {
     );
 
     expect(newAgent.login).toHaveBeenCalledWith({
-      identifier: mockCredentials.newHandle,
+      identifier: mockCredentials.newHandle.handle,
       password: mockCredentials.newPassword,
     });
   });

@@ -20,16 +20,65 @@ export type MockMigration = {
   deserialize: Mock<() => Migration>;
 };
 
-export const makeMockCredentials = (): MigrationCredentials => ({
-  oldPdsUrl: 'https://old.bsky.social',
-  newPdsUrl: 'https://new.bsky.social',
+export const makeMockCredentials = (): MigrationCredentialsWithHandle => ({
+  oldPdsUrl: 'https://bsky.social',
+  newPdsUrl: 'https://foo.com',
   oldHandle: 'old.handle.com',
   oldPassword: 'oldpass123',
-  newHandle: 'new.handle.com',
+  newHandle: { handle: 'new.foo.com' },
   newEmail: 'new@email.com',
   newPassword: 'newpass123',
   inviteCode: 'invite-123',
 });
+
+export const makeMockCredentialsWithFinalHandle = (
+  finalHandle: string,
+): MigrationCredentialsWithFinalHandle => ({
+  ...makeMockCredentials(),
+  newHandle: {
+    temporaryHandle: 'new.foo.com',
+    finalHandle,
+  },
+});
+
+export type MigrationCredentialsWithHandle = Exclude<
+  MigrationCredentials,
+  'newHandle'
+> & {
+  newHandle: {
+    handle: string;
+  };
+};
+
+export type MigrationCredentialsWithFinalHandle = Exclude<
+  MigrationCredentials,
+  'newHandle'
+> & {
+  newHandle: {
+    temporaryHandle: string;
+    finalHandle: string;
+  };
+};
+
+export const assertHasHandle = (
+  credentials: MigrationCredentials,
+): asserts credentials is MigrationCredentialsWithHandle => {
+  if ('handle' in credentials.newHandle) {
+    return;
+  }
+  throw new Error('handle is not defined');
+};
+
+export const assertHasFinalHandle: (
+  credentials: MigrationCredentials,
+) => asserts credentials is MigrationCredentialsWithFinalHandle = (
+  credentials,
+) => {
+  if ('finalHandle' in credentials.newHandle) {
+    return;
+  }
+  throw new Error('finalHandle is not defined');
+};
 
 export const makeMockOperations = (
   mocks: Partial<typeof operations> = {},
@@ -89,6 +138,7 @@ export function makeMockAgent(did?: string): Mocked<AtpAgent> {
           getRecommendedDidCredentials: vi.fn(),
           signPlcOperation: vi.fn(),
           submitPlcOperation: vi.fn(),
+          updateHandle: vi.fn(),
         },
       },
     },

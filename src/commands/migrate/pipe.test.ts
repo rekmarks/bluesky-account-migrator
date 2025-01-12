@@ -2,7 +2,10 @@ import { Readable, Writable } from 'node:stream';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { handlePipe } from './pipe.js';
-import { makeMockCredentials } from '../../../test/utils.js';
+import {
+  makeMockCredentials,
+  makeMockCredentialsWithFinalHandle,
+} from '../../../test/utils.js';
 import { Migration, operations } from '../../migration/index.js';
 import type { SerializedMigration } from '../../migration/types.js';
 
@@ -152,5 +155,19 @@ describe('handlePipe', () => {
     await expect(handlePipe()).rejects.toThrow(
       `Fatal: Unexpected migration state "${unexpectedState}" after initial run`,
     );
+  });
+
+  it('handles invalid handles', async () => {
+    const credentials = makeMockCredentialsWithFinalHandle('bar.baz');
+    credentials.newHandle.temporaryHandle = 'kaplar.kaplar';
+    const inputData: SerializedMigration = {
+      credentials,
+      state: 'Ready',
+    };
+
+    mockStdin.push(JSON.stringify(inputData));
+    mockStdin.push(null);
+
+    await expect(handlePipe()).rejects.toThrow('Invalid migration arguments');
   });
 });

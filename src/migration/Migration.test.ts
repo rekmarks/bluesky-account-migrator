@@ -2,7 +2,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { Migration } from './Migration.js';
 import * as operations from './operations/index.js';
-import type { AgentPair, MigrationCredentials } from './types.js';
+import type { AgentPair } from './types.js';
+import type { MigrationCredentialsWithHandle } from '../../test/utils.js';
 import { makeMockCredentials, mockAccountDid } from '../../test/utils.js';
 
 vi.mock('./operations/index.js', () => ({
@@ -31,7 +32,7 @@ const mockPrivateKey = 'mock-private-key';
 const mockToken = 'mock-token';
 
 describe('Migration', () => {
-  let mockCredentials: MigrationCredentials;
+  let mockCredentials: MigrationCredentialsWithHandle;
 
   beforeEach(() => {
     mockCredentials = makeMockCredentials();
@@ -248,7 +249,7 @@ describe('Migration', () => {
       });
       expect(mockAgents.newAgent.login).toHaveBeenCalledOnce();
       expect(mockAgents.newAgent.login).toHaveBeenCalledWith({
-        identifier: mockCredentials.newHandle,
+        identifier: mockCredentials.newHandle.handle,
         password: mockCredentials.newPassword,
       });
     });
@@ -270,7 +271,7 @@ describe('Migration', () => {
       });
       expect(mockAgents.newAgent.login).toHaveBeenCalledOnce();
       expect(mockAgents.newAgent.login).toHaveBeenCalledWith({
-        identifier: mockCredentials.newHandle,
+        identifier: mockCredentials.newHandle.handle,
         password: mockCredentials.newPassword,
       });
     });

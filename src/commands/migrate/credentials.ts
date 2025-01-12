@@ -3,6 +3,7 @@ import { bold, green } from 'yoctocolors-cjs';
 
 import { confirm, input, password } from './prompts.js';
 import {
+  isPdsSubdomain,
   makeMigrationCredentials,
   type MigrationCredentials,
 } from '../../migration/index.js';
@@ -12,7 +13,14 @@ import {
   isHandle,
   handleUnknownError,
   stringify,
+  isPlainObject,
 } from '../../utils/index.js';
+
+/**
+ * @param handle - The handle to extract the leaf domain from.
+ * @returns The leaf domain of the handle.
+ */
+const extractLeafDomain = (handle: string) => handle.split('.').shift();
 
 export const validateUrl = (value: string) =>
   isHttpUrl(value) || 'Must be a valid HTTP or HTTPS URL string';
@@ -26,28 +34,14 @@ export const validateEmail = (value: string) =>
 export const validateHandle = (value: string) =>
   isHandle(value) || 'Must be a valid handle';
 
-export const stripHandlePrefix = (value: string) => value.replace(/^@/u, '');
-
-/**
- * Validate the new handle, ensuring that it's a subdomain of the new PDS hostname.
- *
- * @param value - The new handle to validate.
- * @param newPdsHostname - The validated new PDS hostname.
- * @returns A string error message or `true` if the handle is valid.
- */
-export const validateNewHandle = (
-  value: string,
+export const validateTemporaryHandle = (
+  newHandle: string,
   newPdsHostname: string,
-): string | true => {
-  if (!isHandle(value)) {
-    return 'Must be a valid handle';
-  }
+) =>
+  (isHandle(newHandle) && isPdsSubdomain(newHandle, newPdsHostname)) ||
+  'Must be a valid handle and a subdomain of the new PDS hostname';
 
-  return (
-    value.endsWith(`.${newPdsHostname}`) ||
-    'Must be a subdomain of the new PDS hostname'
-  );
-};
+export const stripHandlePrefix = (value: string) => value.replace(/^@/u, '');
 
 export async function getCredentialsInteractive(): Promise<
   MigrationCredentials | undefined
@@ -83,8 +77,20 @@ export async function getCredentialsInteractive(): Promise<
 
   const newHandle = await input({
     message: `Enter the desired new handle (e.g. username.${newPdsHostname})`,
-    validate: (value) => validateNewHandle(value, newPdsHostname),
+    validate: (value) => validateHandle(value),
   });
+
+  let newTemporaryHandle: string | undefined;
+  if (!isPdsSubdomain(newHandle, newPdsHostname)) {
+    newTemporaryHandle = await input({
+      message:
+        'You are using a custom handle. ' +
+        'This requires a temporary handle that will be used during the migration.\n\n' +
+        `Enter the desired temporary new handle (e.g. username.${newPdsHostname})`,
+      validate: (value) => validateTemporaryHandle(value, newPdsHostname),
+      default: `${extractLeafDomain(newHandle)}-temp.${newPdsHostname}`,
+    });
+  }
 
   const newEmail = await input({
     message: 'Enter the desired email address for the new account',
@@ -100,13 +106,18 @@ export async function getCredentialsInteractive(): Promise<
     validate: (value) => value === newPassword || 'Passwords do not match',
   });
 
-  const rawCredentials = {
+  const rawCredentials: MigrationCredentials = {
     oldPdsUrl,
     oldHandle,
     oldPassword,
     inviteCode,
     newPdsUrl,
-    newHandle,
+    newHandle: newTemporaryHandle
+      ? {
+          handle: newTemporaryHandle,
+          finalHandle: newHandle,
+        }
+      : { handle: newHandle },
     newEmail,
     newPassword,
   };
@@ -142,7 +153,6 @@ const credentialLabels = {
   oldPassword: 'Current password',
   inviteCode: 'Invite code',
   newPdsUrl: 'New PDS URL',
-  newHandle: 'New handle',
   newEmail: 'New email',
   newPassword: 'New password',
 } as const;
@@ -154,9 +164,22 @@ function logCredentials(credentials: MigrationCredentials) {
     newPassword: '********',
   };
 
+  const getStringValue = (key: string, value: string) =>
+    `${bold(`${key}:`)}\n${green(value)}`;
+
   const content = Object.entries(redacted)
     .map(([key, value]) => {
-      return `${bold(`${credentialLabels[key as keyof MigrationCredentials]}:`)}\n${green(value)}`;
+      if (isPlainObject(value)) {
+        if ('handle' in value) {
+          return getStringValue('New handle', value.handle);
+        }
+        return `${getStringValue('New handle (temporary)', value.temporaryHandle)}\n${getStringValue('New handle (final)', value.finalHandle)}`;
+      }
+      return getStringValue(
+        // @ts-expect-error
+        credentialLabels[key],
+        value,
+      );
     })
     .join('\n');
 

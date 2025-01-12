@@ -43,16 +43,42 @@ export const NonEmptyStringSchema = custom<string>(
   'Must be a non-empty string',
 );
 
+/**
+ * @param handle - The handle to validate.
+ * @param pdsHostname - The PDS hostname.
+ * @returns `true` if the handle is a subdomain of the PDS hostname, `false` otherwise.
+ */
+export const isPdsSubdomain = (handle: string, pdsHostname: string): boolean =>
+  handle.endsWith(`.${pdsHostname}`);
+
 export const MigrationCredentialsSchema = object({
   oldPdsUrl: HttpUrl,
   newPdsUrl: HttpUrl,
   oldHandle: Handle,
   oldPassword: NonEmptyStringSchema,
-  newHandle: Handle,
+  newHandle: union([
+    object({
+      temporaryHandle: Handle,
+      finalHandle: Handle,
+    }),
+    object({
+      handle: Handle,
+    }),
+  ]),
   newEmail: Email,
   newPassword: NonEmptyStringSchema,
   inviteCode: NonEmptyStringSchema,
-});
+}).refine(
+  (data) =>
+    'handle' in data.newHandle ||
+    isPdsSubdomain(
+      data.newHandle.temporaryHandle,
+      new URL(data.newPdsUrl).hostname,
+    ),
+  {
+    message: 'Temporary new handle must be a subdomain of the new PDS hostname',
+  },
+);
 
 export const makeMigrationCredentials = (
   value: unknown,
@@ -96,6 +122,13 @@ export const isPartialSerializedMigration = (
   PartialMigrationSchema.safeParse(value).success;
 
 export type MigrationCredentials = TypeOf<typeof MigrationCredentialsSchema>;
+
+export const getMigrationHandle = (credentials: MigrationCredentials) => {
+  if ('finalHandle' in credentials.newHandle) {
+    return credentials.newHandle.finalHandle;
+  }
+  return credentials.newHandle.handle;
+};
 
 export type AgentPair = {
   oldAgent: AtpAgent;
