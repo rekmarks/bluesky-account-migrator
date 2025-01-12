@@ -1,4 +1,8 @@
-import type { MigrationCredentials, AgentPair } from '../types.js';
+import {
+  type MigrationCredentials,
+  type AgentPair,
+  getMigrationHandle,
+} from '../types.js';
 
 /**
  * Create a new account on the new PDS and login to it.
@@ -27,7 +31,7 @@ export async function createNewAccount({
 
   await agents.newAgent.com.atproto.server.createAccount(
     {
-      handle: credentials.newHandle,
+      handle: getMigrationHandle(credentials),
       email: credentials.newEmail,
       password: credentials.newPassword,
       did: agents.accountDid,
@@ -40,7 +44,7 @@ export async function createNewAccount({
   );
 
   await agents.newAgent.login({
-    identifier: credentials.newHandle,
+    identifier: getMigrationHandle(credentials),
     password: credentials.newPassword,
   });
 }

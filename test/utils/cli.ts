@@ -2,6 +2,8 @@ import { spawn } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
+import { stringify } from '../../src/utils/misc.js';
+
 type RunCliOptions = {
   input?: string;
   env?: Record<string, string>;
@@ -44,7 +46,9 @@ export async function runCli(
       const failed = code !== 0;
       if ((failed && !expectError) || (!failed && expectError)) {
         reject(
-          Object.assign(new Error('Command failed'), { stdout, stderr, code }),
+          new Error(
+            `Command failed: ${code}\n${stringify({ stdout, stderr })}`,
+          ),
         );
       } else {
         resolve({ stdout, stderr, code: code ?? 0 });

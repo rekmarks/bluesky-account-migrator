@@ -4,6 +4,7 @@
     "@metamask/create-release-branch",
     "@tsconfig/node22",
     "@types/*",
+    "@vitest/coverage-istanbul",
     "bluesky-account-migrator",
     "eslint-config-prettier",
     "eslint-import-resolver-typescript",

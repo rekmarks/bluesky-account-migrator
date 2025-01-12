@@ -103,11 +103,11 @@ Given a file `credentials.json` with the following contents:
 ```json
 {
   "credentials": {
-    "oldPdsUrl": "https://old.bsky.social",
-    "newPdsUrl": "https://new.bsky.social",
-    "oldHandle": "old.handle.com",
+    "oldPdsUrl": "https://bsky.social",
+    "newPdsUrl": "https://pds.com",
+    "oldHandle": "old.handle",
     "oldPassword": "oldpass123",
-    "newHandle": "new.handle.com",
+    "newHandle": { "handle": "new.pds.com" },
     "newEmail": "new@email.com",
     "newPassword": "newpass123",
     "inviteCode": "invite-123"
@@ -127,11 +127,11 @@ If the credentials are correct, `result.json` should look like this:
 {
   "state": "RequestedPlcOperation",
   "credentials": {
-    "oldPdsUrl": "https://old.bsky.social",
-    "newPdsUrl": "https://new.bsky.social",
-    "oldHandle": "old.handle.com",
+    "oldPdsUrl": "https://bsky.social",
+    "newPdsUrl": "https://pds.com",
+    "oldHandle": "old.handle",
     "oldPassword": "oldpass123",
-    "newHandle": "new.handle.com",
+    "newHandle": { "handle": "new.pds.com" },
     "newEmail": "new@email.com",
     "newPassword": "newpass123",
     "inviteCode": "invite-123"
@@ -156,11 +156,11 @@ If the confirmation token is correct, `finalResult.json` should look like this:
 {
   "state": "Finalized",
   "credentials": {
-    "oldPdsUrl": "https://old.bsky.social",
-    "newPdsUrl": "https://new.bsky.social",
-    "oldHandle": "old.handle.com",
+    "oldPdsUrl": "https://bsky.social",
+    "newPdsUrl": "https://pds.com",
+    "oldHandle": "old.handle",
     "oldPassword": "oldpass123",
-    "newHandle": "new.handle.com",
+    "newHandle": { "handle": "new.pds.com" },
     "newEmail": "new@email.com",
     "newPassword": "newpass123",
     "inviteCode": "invite-123"
@@ -203,12 +203,12 @@ You can run a migration programmatically as follows:
 import { Migration, MigrationState } from 'bluesky-account-migrator';
 
 const credentials = {
-  oldPdsUrl: 'https://old.bsky.social',
-  oldHandle: 'old.handle.com',
+  oldPdsUrl: 'https://bsky.social',
+  oldHandle: 'old.handle',
   oldPassword: 'oldpass123',
   inviteCode: 'invite-123',
-  newPdsUrl: 'https://new.bsky.social',
-  newHandle: 'new.handle.com',
+  newPdsUrl: 'https://pds.com',
+  newHandle: { handle: 'new.pds.com' },
   newEmail: 'new@email.com',
   newPassword: 'newpass123',
 };

@@ -7,6 +7,7 @@ import type {
   SerializedMigration,
 } from './types.js';
 import {
+  getMigrationHandle,
   MigrationStateSchema,
   SerializedMigrationSchema,
   stateUtils,
@@ -201,7 +202,7 @@ export class Migration {
 
     if (stateUtils.gte(parsed.state, 'CreatedNewAccount')) {
       await agents.newAgent.login({
-        identifier: parsed.credentials.newHandle,
+        identifier: getMigrationHandle(parsed.credentials),
         password: parsed.credentials.newPassword,
       });
     }
