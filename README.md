@@ -47,16 +47,35 @@ of this package is based on the snippet in that guide.
 
 #### Custom handles
 
-You cannot submit custom handles—i.e. ones that do not end with `.bsky.social`—
-as your new handle.
-Bluesky's PDS implementation requires that all handles are a subdomain of the PDS
-hostname.
-For example, if your PDS is hosted at `pds.foo.com`, new accounts must have handles
-of the form `*.pds.foo.com`.
-If you already have a custom handle, you can configure it for your migrated account
-after the migration.
-See e.g. [this discussion](https://github.com/bluesky-social/atproto/discussions/2909)
-for how to do this.
+A "custom" handle is a handle that is not a subdomain of the PDS URL. For example,
+for a account hosted on `bsky.social`, `foo.bsky.social` would be a "normal" handle,
+whereas `foo.bar` would be a custom handle.
+
+Bluesky's PDS implementation currently does not support creating new accounts with
+custom handles. However, the handle can be updated after migration. If you submit
+a custom handle as your new handle, the CLI will perform this update at the end
+of the migration, after activating the new account on the new PDS.
+
+For further deatils, see e.g.
+[this discussion](https://github.com/bluesky-social/atproto/discussions/2909)
+and
+[this issue](https://github.com/bluesky-social/pds/issues/110#issuecomment-2439866348).
+
+If you are using [the `pipe` command](#pipe), you will need to provide the temporary and final
+handles in the passed-in credentials, for example:
+
+```json5
+{
+  "credentials": {
+    // The other credentials as normal
+    // ...
+    "newHandle": {
+      "temporaryHandle": "new-temp.pds.com"
+      "finalHandle": "foo.com",
+    },
+  }
+}
+```
 
 ### CLI
 

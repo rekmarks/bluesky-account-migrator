@@ -83,7 +83,10 @@ export async function getCredentialsInteractive(): Promise<
   let newTemporaryHandle: string | undefined;
   if (!isPdsSubdomain(newHandle, newPdsHostname)) {
     newTemporaryHandle = await input({
-      message: `Enter the desired temporary new handle (e.g. username.${newPdsHostname})`,
+      message:
+        'You are using a custom handle. ' +
+        'This requires a temporary handle that will be used during the migration.\n\n' +
+        `Enter the desired temporary new handle (e.g. username.${newPdsHostname})`,
       validate: (value) => validateTemporaryHandle(value, newPdsHostname),
       default: `${extractLeafDomain(newHandle)}-temp.${newPdsHostname}`,
     });
