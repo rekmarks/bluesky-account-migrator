@@ -27,7 +27,7 @@ export class Migration implements PickPublic<ActualMigration> {
 
   newPrivateKey: string | undefined = mockNewPrivateKey;
 
-  confirmationToken: string | undefined = '123456';
+  confirmationToken: string | undefined;
 
   agents = {
     oldAgent: {},
