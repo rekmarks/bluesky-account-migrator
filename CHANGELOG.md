@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0]
+
+### Uncategorized
+
+- feat!: Support custom handles on the new PDS ([#49](https://github.com/rekmarks/bluesky-account-migrator.git/pull/49))
+- chore(deps): Bump @inquirer/prompts from 7.2.1 to 7.2.2 ([#51](https://github.com/rekmarks/bluesky-account-migrator.git/pull/51))
+- chore(deps): Bump @atproto/crypto from 0.4.2 to 0.4.3 ([#50](https://github.com/rekmarks/bluesky-account-migrator.git/pull/50))
+- chore(deps): Bump @atproto/api from 0.13.21 to 0.13.26 ([#48](https://github.com/rekmarks/bluesky-account-migrator.git/pull/48))
+- chore(deps-dev): Bump @types/node from 22.10.2 to 22.10.5 ([#47](https://github.com/rekmarks/bluesky-account-migrator.git/pull/47))
+- chore(deps-dev): Bump esbuild from 0.24.1 to 0.24.2 ([#41](https://github.com/rekmarks/bluesky-account-migrator.git/pull/41))
+- chore(deps-dev): Bump eslint-plugin-n from 17.15.0 to 17.15.1 ([#40](https://github.com/rekmarks/bluesky-account-migrator.git/pull/40))
+- chore: Configure Dependabot to only update prod dependencies
+- chore(deps): Bump @inquirer/prompts from 7.2.0 to 7.2.1 ([#39](https://github.com/rekmarks/bluesky-account-migrator.git/pull/39))
+- test: Remove default confirmation token param
+- docs: Fix typo in readme
+- docs: Document 2fa limitations ([#36](https://github.com/rekmarks/bluesky-account-migrator.git/pull/36))
+
 ## [0.3.0]
 
 ### Added
@@ -54,7 +71,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release ([#12](https://github.com/rekmarks/bluesky-account-migrator/pull/12))
 
-[Unreleased]: https://github.com/rekmarks/bluesky-account-migrator.git/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/rekmarks/bluesky-account-migrator.git/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/rekmarks/bluesky-account-migrator.git/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/rekmarks/bluesky-account-migrator.git/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/rekmarks/bluesky-account-migrator.git/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/rekmarks/bluesky-account-migrator.git/compare/v0.1.0...v0.2.0

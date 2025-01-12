@@ -1,6 +1,6 @@
 {
   "name": "bluesky-account-migrator",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "A CLI for migrating Bluesky accounts from one PDS to another.",
   "repository": {
     "type": "git",
