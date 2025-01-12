@@ -40,6 +40,8 @@ of this package is based on the snippet in that guide.
 - A PDS to migrate to
   - Ideally, this PDS has SMTP enabled in order to verify your email.
     Bluesky the app will ask you to do this for the new account.
+  - See [Confirming your email](#confirming-your-email) for a potential way
+    around SMTP.
 - Two-factor authentication (2FA) disabled on your Bluesky account.
   - This is only required for the duration of the migration.
 
@@ -76,6 +78,16 @@ handles in the passed-in credentials, for example:
   }
 }
 ```
+
+#### Confirming your email
+
+Even though you probably already confirmed your email on the old PDS, Bluesky will want you
+to confirm your email on the new PDS as well. (There's not really a point to this, but this is
+how it works.)
+
+To do this, you can either configure SMTP on your PDS, _or_ copypaste
+[this script](https://github.com/rekmarks/bluesky-account-migrator/blob/main/scripts/pds-confirm-email.sh)
+to your PDS and run it with the DID of your migrated account.
 
 ### CLI
 
