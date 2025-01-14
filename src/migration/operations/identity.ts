@@ -22,15 +22,15 @@ export async function migrateIdentity({
 }): Promise<string> {
   const { recoveryKey, privateKey } = await generateRecoveryKey();
 
-  const getDidCredentials =
+  const didCredentials =
     await newAgent.com.atproto.identity.getRecommendedDidCredentials();
-  const rotationKeys = getDidCredentials.data.rotationKeys ?? [];
-  if (!getDidCredentials.data.rotationKeys) {
+  const rotationKeys = didCredentials.data.rotationKeys ?? [];
+  if (!didCredentials.data.rotationKeys) {
     throw new Error('New PDS did not provide any rotation keys');
   }
 
   const plcCredentials: PlcOperationParams = {
-    ...getDidCredentials.data,
+    ...didCredentials.data,
     rotationKeys: [recoveryKey.did(), ...rotationKeys],
     token: confirmationToken,
   };
