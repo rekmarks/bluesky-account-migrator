@@ -114,7 +114,7 @@ export async function getCredentialsInteractive(): Promise<
     newPdsUrl,
     newHandle: newTemporaryHandle
       ? {
-          handle: newTemporaryHandle,
+          temporaryHandle: newTemporaryHandle,
           finalHandle: newHandle,
         }
       : { handle: newHandle },

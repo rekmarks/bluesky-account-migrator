@@ -12,29 +12,27 @@ import {
  * @param options.credentials - The credentials.
  */
 export async function createNewAccount({
-  agents,
+  agents: { accountDid, newAgent, oldAgent },
   credentials,
 }: {
   agents: AgentPair;
   credentials: MigrationCredentials;
 }): Promise<void> {
-  const describeRes = await agents.newAgent.com.atproto.server.describeServer();
+  const describeRes = await newAgent.com.atproto.server.describeServer();
   const newServerDid = describeRes.data.did;
 
-  const serviceJwtRes = await agents.oldAgent.com.atproto.server.getServiceAuth(
-    {
-      aud: newServerDid,
-      lxm: 'com.atproto.server.createAccount',
-    },
-  );
+  const serviceJwtRes = await oldAgent.com.atproto.server.getServiceAuth({
+    aud: newServerDid,
+    lxm: 'com.atproto.server.createAccount',
+  });
   const serviceJwt = serviceJwtRes.data.token;
 
-  await agents.newAgent.com.atproto.server.createAccount(
+  await newAgent.com.atproto.server.createAccount(
     {
       handle: getMigrationHandle(credentials),
       email: credentials.newEmail,
       password: credentials.newPassword,
-      did: agents.accountDid,
+      did: accountDid,
       inviteCode: credentials.inviteCode,
     },
     {
@@ -43,7 +41,7 @@ export async function createNewAccount({
     },
   );
 
-  await agents.newAgent.login({
+  await newAgent.login({
     identifier: getMigrationHandle(credentials),
     password: credentials.newPassword,
   });

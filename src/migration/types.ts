@@ -124,8 +124,8 @@ export const isPartialSerializedMigration = (
 export type MigrationCredentials = TypeOf<typeof MigrationCredentialsSchema>;
 
 export const getMigrationHandle = (credentials: MigrationCredentials) => {
-  if ('finalHandle' in credentials.newHandle) {
-    return credentials.newHandle.finalHandle;
+  if ('temporaryHandle' in credentials.newHandle) {
+    return credentials.newHandle.temporaryHandle;
   }
   return credentials.newHandle.handle;
 };
