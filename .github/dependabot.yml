@@ -6,9 +6,8 @@ updates:
   - package-ecosystem: 'npm'
     directory: '/'
     schedule:
-      interval: 'weekly'
-      day: 'sunday'
-      time: '15:00' # UTC
+      interval: 'monthly'
+      time: '06:00' # UTC
     allow:
       - dependency-type: 'production'
     target-branch: 'main'
