@@ -6,10 +6,11 @@ updates:
   - package-ecosystem: 'npm'
     directory: '/'
     schedule:
-      interval: 'monthly'
+      interval: 'weekly'
+      day: 'sunday'
       time: '06:00' # UTC
     allow:
-      - dependency-type: 'production'
+      - dependency-name: '@atproto/*'
     target-branch: 'main'
     versioning-strategy: 'increase-if-necessary'
     open-pull-requests-limit: 5
