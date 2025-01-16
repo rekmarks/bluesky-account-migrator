@@ -169,7 +169,7 @@ describe('CLI', () => {
       expect(stdout).toContain(
         'The migration has created a new account, but it may not be ready to use yet.',
       );
-      // expect(stdout).toContain('You should still save the private key in a secure location.');
+      expect(stdout).toContain('You should still save the private key in a secure location.');
       expect(stdout).toContain('0xdeadbeef');
       expect(stderr).toContain(
         `Error: Migration failed during state "${testPlan.failureState}"`,
