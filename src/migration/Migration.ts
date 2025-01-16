@@ -275,7 +275,7 @@ export class Migration {
           };
         }
       } catch (error) {
-        throw new Error(`Migration failed during state ${this.#state}.`, {
+        throw new Error(`Migration failed during state "${this.#state}"`, {
           cause: error instanceof Error ? error : String(error),
         });
       }

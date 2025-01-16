@@ -43,10 +43,11 @@
   },
   "scripts": {
     "build": "pnpm build:ts-bridge && pnpm build:chmod",
-    "build:test": "pnpm build && pnpm build:test:fakes",
-    "build:test:fakes": "esbuild ./test/FakeMigration.ts --outfile=./dist/migration/Migration.mjs --bundle --format=esm --target=es2022 --platform=node --packages=external",
     "build:ts-bridge": "ts-bridge --project tsconfig.build.json --verbose --clean --no-references",
     "build:chmod": "chmod +x ./dist/main.mjs && chmod +x ./dist/main.cjs",
+    "build:test": "pnpm build && ./scripts/build-test.sh",
+    "build:qa": "pnpm build && pnpm build:qa:mocks",
+    "build:qa:mocks": "esbuild ./test/mocks/Migration.ts --outfile=./dist/migration/Migration.mjs --bundle --format=esm --target=es2022 --platform=node --packages=external",
     "lint": "pnpm lint:eslint && pnpm lint:misc --check && pnpm lint:types && pnpm lint:changelog && pnpm lint:dependencies --check",
     "lint:changelog": "auto-changelog validate --prettier --repo https://github.com/rekmarks/bluesky-account-migrator.git",
     "lint:dependencies": "depcheck && pnpm dedupe",

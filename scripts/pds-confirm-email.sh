@@ -1,5 +1,9 @@
 #!/bin/bash
 
+set -x
+set -e
+set -o pipefail
+
 # Check if running as root/sudo
 if [ "$EUID" -ne 0 ]; then
     echo "Error: This script must be run with sudo privileges"
@@ -13,7 +17,8 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
-ACCOUNT_DID="$1"
+# Trim any trailing whitespace or newlines from the input
+ACCOUNT_DID=$(echo "$1" | tr -d '\n')
 # Format timestamp as ISO string with Z suffix
 CURRENT_TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
 DB_PATH="/pds/account.sqlite"

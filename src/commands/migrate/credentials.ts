@@ -43,66 +43,79 @@ export const validateTemporaryHandle = (
 
 export const stripHandlePrefix = (value: string) => value.replace(/^@/u, '');
 
+export const promptMessages = {
+  oldPdsUrl: 'Enter the current PDS URL',
+  oldHandle: 'Enter the full current handle (e.g. user.bsky.social, user.com)',
+  oldPassword: 'Enter the password for the current account',
+  inviteCode: 'Enter the invite code for the new account (from the new PDS)',
+  newPdsUrl: 'Enter the new PDS URL',
+  newHandle: (newPdsHostname: string) =>
+    `Enter the desired new handle (e.g. user.${newPdsHostname})`,
+  newTemporaryHandle:
+    'You are using a custom handle. ' +
+    'This requires a temporary handle that will be used during the migration.\n\n' +
+    `Enter the desired temporary new handle`,
+  newEmail: 'Enter the desired email address for the new account',
+  newPassword: 'Enter the desired password for the new account',
+  confirmPassword: 'Confirm the password for the new account',
+} as const;
+
 export async function getCredentialsInteractive(): Promise<
   MigrationCredentials | undefined
 > {
   const oldPdsUrl = await input({
-    message: 'Enter the current PDS URL',
+    message: promptMessages.oldPdsUrl,
     default: 'https://bsky.social',
     validate: validateUrl,
   });
 
   const oldHandle = await input({
-    message:
-      'Enter the full current handle (e.g. username.bsky.social, username.com)',
+    message: promptMessages.oldHandle,
     validate: validateHandle,
   });
 
   const oldPassword = await password({
-    message: 'Enter the password for the current account',
+    message: promptMessages.oldPassword,
     validate: validateString,
   });
 
   const inviteCode = await input({
-    message: 'Enter the invite code for the new account (from the new PDS)',
+    message: promptMessages.inviteCode,
     validate: validateString,
   });
 
   const newPdsUrl = await input({
-    message: 'Enter the new PDS URL',
+    message: promptMessages.newPdsUrl,
     validate: validateUrl,
   });
 
   const newPdsHostname = new URL(newPdsUrl).hostname;
 
   const newHandle = await input({
-    message: `Enter the desired new handle (e.g. username.${newPdsHostname})`,
+    message: promptMessages.newHandle(newPdsHostname),
     validate: (value) => validateHandle(value),
   });
 
   let newTemporaryHandle: string | undefined;
   if (!isPdsSubdomain(newHandle, newPdsHostname)) {
     newTemporaryHandle = await input({
-      message:
-        'You are using a custom handle. ' +
-        'This requires a temporary handle that will be used during the migration.\n\n' +
-        `Enter the desired temporary new handle (e.g. username.${newPdsHostname})`,
+      message: promptMessages.newTemporaryHandle,
       validate: (value) => validateTemporaryHandle(value, newPdsHostname),
       default: `${extractLeafDomain(newHandle)}-temp.${newPdsHostname}`,
     });
   }
 
   const newEmail = await input({
-    message: 'Enter the desired email address for the new account',
+    message: promptMessages.newEmail,
     validate: validateEmail,
   });
 
   const newPassword = await password({
-    message: 'Enter the desired password for the new account',
+    message: promptMessages.newPassword,
     validate: validateString,
   });
   await password({
-    message: 'Confirm the password for the new account',
+    message: promptMessages.confirmPassword,
     validate: (value) => value === newPassword || 'Passwords do not match',
   });
 
