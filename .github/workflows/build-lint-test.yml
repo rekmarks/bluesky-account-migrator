@@ -146,7 +146,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Make test build modifications
-        run: pnpm build:test:fakes
+        run: pnpm build:test:mocks
       - name: End-to-end test
         run: pnpm test:e2e
       - name: Require clean working directory

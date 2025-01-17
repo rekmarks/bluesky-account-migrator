@@ -2,15 +2,15 @@ import {
   MigrationStateSchema,
   SerializedMigrationSchema,
   stateUtils,
-} from '../src/migration/index.js';
+} from '../../src/migration/index.js';
 import type {
   AgentPair,
   MigrationCredentials,
   SerializedMigration,
   MigrationState,
   Migration as ActualMigration,
-} from '../src/migration/index.js';
-import type { PickPublic } from '../src/utils/misc.js';
+} from '../../src/migration/index.js';
+import type { PickPublic } from '../../src/utils/misc.js';
 
 const failureCondition = getFailureCondition();
 
