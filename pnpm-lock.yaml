@@ -35,7 +35,7 @@ importers:
     devDependencies:
       '@atproto/xrpc':
         specifier: ^0.6.5
-        version: 0.6.6
+        version: 0.6.7
       '@lavamoat/preinstall-always-fail':
         specifier: ^2.1.0
         version: 2.1.0
@@ -139,8 +139,8 @@ packages:
   '@atproto/syntax@0.3.1':
     resolution: {integrity: sha512-fzW0Mg1QUOVCWUD3RgEsDt6d1OZ6DdFmbKcDdbzUfh0t4rhtRAC05KbZYmxuMPWDAiJ4BbbQ5dkAc/mNypMXkw==}
 
-  '@atproto/xrpc@0.6.6':
-    resolution: {integrity: sha512-umXEYVMo9/pyIBoKmIAIi64RXDW9tSXY+wqztlQ6I2GZtjLfNZqmAWU+wADk3SxUe54mvjxxGyA4TtyGtDMfhA==}
+  '@atproto/xrpc@0.6.7':
+    resolution: {integrity: sha512-pbzZIONIskyGKxxG3s2wB7rQ2W1xu3ycfeYhKwk/E/ippeJFVxcof64iSC7f22+7JSKUJcxBeZ1piBB82vLj7g==}
 
   '@babel/code-frame@7.26.2':
     resolution: {integrity: sha512-RJlIHRueQgwWitWgF8OdFYGZX328Ax5BCemNGlqHfplnRT9ESi8JkFlvaVYbS+UubVY6dpv87Fs2u5M29iNFVQ==}
@@ -2437,7 +2437,7 @@ snapshots:
       '@atproto/common-web': 0.3.2
       '@atproto/lexicon': 0.4.5
       '@atproto/syntax': 0.3.1
-      '@atproto/xrpc': 0.6.6
+      '@atproto/xrpc': 0.6.7
       await-lock: 2.2.2
       multiformats: 9.9.0
       tlds: 1.255.0
@@ -2466,7 +2466,7 @@ snapshots:
 
   '@atproto/syntax@0.3.1': {}
 
-  '@atproto/xrpc@0.6.6':
+  '@atproto/xrpc@0.6.7':
     dependencies:
       '@atproto/lexicon': 0.4.5
       zod: 3.24.1
