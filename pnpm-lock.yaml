@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@atproto/api':
-        specifier: ^0.13.19
-        version: 0.13.27
+        specifier: ^0.14.19
+        version: 0.14.19
       '@atproto/crypto':
         specifier: ^0.4.2
         version: 0.4.4
@@ -127,11 +127,8 @@ packages:
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
     engines: {node: '>=6.0.0'}
 
-  '@atproto/api@0.13.27':
-    resolution: {integrity: sha512-IaZezARJSoFBxFvutGa+2hT0NiA+db6NpKkla2bRyv/SPinYViuqD5kaaPzc732yeE1uwUKQc4wwwlctYamFBQ==}
-
-  '@atproto/common-web@0.3.2':
-    resolution: {integrity: sha512-Vx0JtL1/CssJbFAb0UOdvTrkbUautsDfHNOXNTcX2vyPIxH9xOameSqLLunM1hZnOQbJwyjmQCt6TV+bhnanDg==}
+  '@atproto/api@0.14.19':
+    resolution: {integrity: sha512-YYTqM0K0qk2TP7PguktPzlAQGLTL1bEGz6PgY5kqKJNX4o1318kJYB22DzjJYqV2NUCq0JQ9Lb0oskLvTisEOg==}
 
   '@atproto/common-web@0.4.1':
     resolution: {integrity: sha512-Ghh+djHYMAUCktLKwr2IuGgtjcwSWGudp+K7+N7KBA9pDDloOXUEY8Agjc5SHSo9B1QIEFkegClU5n+apn2e0w==}
@@ -142,9 +139,6 @@ packages:
 
   '@atproto/lexicon@0.4.10':
     resolution: {integrity: sha512-uDbP20vetBgtXPuxoyRcvOGBt2gNe1dFc9yYKcb6jWmXfseHiGTnIlORJOLBXIT2Pz15Eap4fLxAu6zFAykD5A==}
-
-  '@atproto/syntax@0.3.1':
-    resolution: {integrity: sha512-fzW0Mg1QUOVCWUD3RgEsDt6d1OZ6DdFmbKcDdbzUfh0t4rhtRAC05KbZYmxuMPWDAiJ4BbbQ5dkAc/mNypMXkw==}
 
   '@atproto/syntax@0.4.0':
     resolution: {integrity: sha512-b9y5ceHS8YKOfP3mdKmwAx5yVj9294UN7FG2XzP6V5aKUdFazEYRnR9m5n5ZQFKa3GNvz7de9guZCJ/sUTcOAA==}
@@ -2210,8 +2204,8 @@ packages:
     resolution: {integrity: sha512-n1cw8k1k0x4pgA2+9XrOkFydTerNcJ1zWCO5Nn9scWHTD+5tp8dghT2x1uduQePZTZgd3Tupf+x9BxJjeJi77Q==}
     engines: {node: '>=14.0.0'}
 
-  tlds@1.255.0:
-    resolution: {integrity: sha512-tcwMRIioTcF/FcxLev8MJWxCp+GUALRhFEqbDoZrnowmKSGqPrl5pqS+Sut2m8BgJ6S4FExCSSpGffZ0Tks6Aw==}
+  tlds@1.256.0:
+    resolution: {integrity: sha512-ZmyVB9DAw+FFTmLElGYJgdZFsKLYd/I59Bg9NHkCGPwAbVZNRilFWDMAdX8UG+bHuv7kfursd5XGqo/9wi26lA==}
     hasBin: true
 
   tmp@0.0.33:
@@ -2446,22 +2440,15 @@ snapshots:
       '@jridgewell/gen-mapping': 0.3.8
       '@jridgewell/trace-mapping': 0.3.25
 
-  '@atproto/api@0.13.27':
+  '@atproto/api@0.14.19':
     dependencies:
-      '@atproto/common-web': 0.3.2
+      '@atproto/common-web': 0.4.1
       '@atproto/lexicon': 0.4.10
-      '@atproto/syntax': 0.3.1
+      '@atproto/syntax': 0.4.0
       '@atproto/xrpc': 0.6.12
       await-lock: 2.2.2
       multiformats: 9.9.0
-      tlds: 1.255.0
-      zod: 3.24.1
-
-  '@atproto/common-web@0.3.2':
-    dependencies:
-      graphemer: 1.4.0
-      multiformats: 9.9.0
-      uint8arrays: 3.0.0
+      tlds: 1.256.0
       zod: 3.24.1
 
   '@atproto/common-web@0.4.1':
@@ -2484,8 +2471,6 @@ snapshots:
       iso-datestring-validator: 2.2.2
       multiformats: 9.9.0
       zod: 3.24.1
-
-  '@atproto/syntax@0.3.1': {}
 
   '@atproto/syntax@0.4.0': {}
 
@@ -4548,7 +4533,7 @@ snapshots:
 
   tinyspy@3.0.2: {}
 
-  tlds@1.255.0: {}
+  tlds@1.256.0: {}
 
   tmp@0.0.33:
     dependencies:
