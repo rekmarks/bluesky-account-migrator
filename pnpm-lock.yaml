@@ -143,9 +143,6 @@ packages:
   '@atproto/lexicon@0.4.10':
     resolution: {integrity: sha512-uDbP20vetBgtXPuxoyRcvOGBt2gNe1dFc9yYKcb6jWmXfseHiGTnIlORJOLBXIT2Pz15Eap4fLxAu6zFAykD5A==}
 
-  '@atproto/lexicon@0.4.5':
-    resolution: {integrity: sha512-fljWqMGKn+XWtTprBcS3F1hGBREnQYh6qYHv2sjENucc7REms1gtmZXSerB9N6pVeHVNOnXiILdukeAcic5OEw==}
-
   '@atproto/syntax@0.3.1':
     resolution: {integrity: sha512-fzW0Mg1QUOVCWUD3RgEsDt6d1OZ6DdFmbKcDdbzUfh0t4rhtRAC05KbZYmxuMPWDAiJ4BbbQ5dkAc/mNypMXkw==}
 
@@ -2452,7 +2449,7 @@ snapshots:
   '@atproto/api@0.13.27':
     dependencies:
       '@atproto/common-web': 0.3.2
-      '@atproto/lexicon': 0.4.5
+      '@atproto/lexicon': 0.4.10
       '@atproto/syntax': 0.3.1
       '@atproto/xrpc': 0.6.12
       await-lock: 2.2.2
@@ -2484,14 +2481,6 @@ snapshots:
     dependencies:
       '@atproto/common-web': 0.4.1
       '@atproto/syntax': 0.4.0
-      iso-datestring-validator: 2.2.2
-      multiformats: 9.9.0
-      zod: 3.24.1
-
-  '@atproto/lexicon@0.4.5':
-    dependencies:
-      '@atproto/common-web': 0.3.2
-      '@atproto/syntax': 0.3.1
       iso-datestring-validator: 2.2.2
       multiformats: 9.9.0
       zod: 3.24.1
