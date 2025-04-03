@@ -32,7 +32,7 @@ describe('migrateIdentity', () => {
     ).mockResolvedValue(makeXrpcResponse({ rotationKeys: ['existing-key'] }));
 
     vi.mocked(oldAgent.com.atproto.identity.signPlcOperation).mockResolvedValue(
-      makeXrpcResponse({ operation: 'signed-operation' }),
+      makeXrpcResponse({ operation: { signed: 'signed-operation' } }),
     );
 
     const result = await migrateIdentity({
@@ -56,7 +56,7 @@ describe('migrateIdentity', () => {
     expect(
       newAgent.com.atproto.identity.submitPlcOperation,
     ).toHaveBeenCalledWith({
-      operation: 'signed-operation',
+      operation: { signed: 'signed-operation' },
     });
     expect(result).toBe('010203'); // hex string of mockPrivateKey
   });

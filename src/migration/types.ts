@@ -140,5 +140,5 @@ export type PlcOperationParams = {
   token: string;
   rotationKeys: string[];
   alsoKnownAs?: string[];
-  services?: Record<string, { type: string; endpoint: string }>;
+  services?: Record<string, unknown>;
 };
