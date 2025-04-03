@@ -16,7 +16,7 @@ vi.mock('boxen', () => ({
   default: vi.fn(),
 }));
 
-vi.mock('yoctocolors-cjs', () => ({
+vi.mock('yoctocolors', () => ({
   bold: vi.fn((value) => value),
   green: vi.fn((value) => value),
 }));

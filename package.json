@@ -68,7 +68,8 @@
     "uint8arrays": "^5.1.0",
     "wrap-ansi": "^9.0.0",
     "yargs": "^17.7.2",
-    "yoctocolors-cjs": "^2.1.2"
+    "yocto-spinner": "^0.2.1",
+    "yoctocolors": "^2.1.1"
   },
   "devDependencies": {
     "@atproto/xrpc": "^0.6.5",

@@ -4,7 +4,7 @@ import { custom, enum as zEnum, object, string, union } from 'zod';
 
 import { isEmail, isHandle, isHttpUrl } from '../utils/index.js';
 
-const migrationStateValues = Object.freeze([
+export const migrationStateValues = Object.freeze([
   'Ready',
   'Initialized',
   'CreatedNewAccount',

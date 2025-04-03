@@ -1,4 +1,5 @@
 import {
+  migrationStateValues,
   MigrationStateSchema,
   SerializedMigrationSchema,
   stateUtils,
@@ -17,8 +18,6 @@ const failureCondition = getFailureCondition();
 const mockAccountDid = 'did:plc:testuser123';
 
 const mockNewPrivateKey = '0xdeadbeef';
-
-const migrationValues = Object.values(MigrationStateSchema.Values);
 
 export class Migration implements PickPublic<ActualMigration> {
   state: MigrationState = 'Ready';
@@ -66,7 +65,8 @@ export class Migration implements PickPublic<ActualMigration> {
         return;
       }
       this.stateIndex++;
-      this.state = migrationValues[this.stateIndex] as MigrationState;
+      this.state = migrationStateValues[this.stateIndex] as MigrationState;
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
     if (this.state === 'Finalized' && this.newPrivateKey === undefined) {
       this.newPrivateKey = mockNewPrivateKey;

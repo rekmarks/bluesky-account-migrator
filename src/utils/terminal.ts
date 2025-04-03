@@ -1,7 +1,8 @@
 import assert from 'assert';
 import boxen from 'boxen';
 import wrapAnsi from 'wrap-ansi';
-import { red } from 'yoctocolors-cjs';
+import yoctoSpinner from 'yocto-spinner';
+import { red } from 'yoctocolors';
 
 const getTermWidth = () => process.stdout.columns || 50;
 
@@ -71,3 +72,8 @@ export const logCentered = (message: string, padding: number = 3) => {
 function wrap(message: string, padding = 0) {
   return wrapAnsi(message, getTermWidth() - padding, { hard: true });
 }
+
+export const makeSpinner = () =>
+  yoctoSpinner({
+    color: 'blue',
+  });
