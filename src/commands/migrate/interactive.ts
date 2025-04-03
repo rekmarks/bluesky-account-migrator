@@ -1,7 +1,10 @@
 import { getCredentialsInteractive, validateString } from './credentials.js';
 import { input, pressEnter } from './prompts.js';
 import { Migration } from '../../migration/index.js';
-import type { MigrationCredentials } from '../../migration/index.js';
+import type {
+  MigrationCredentials,
+  MigrationState,
+} from '../../migration/index.js';
 import {
   logError,
   logDelimiter,
@@ -97,7 +100,14 @@ async function executeMigration(
  * @throws {Error} if the resulting migration state is not as expected
  */
 async function beginMigration(migration: Migration): Promise<void> {
-  const result = await migration.run();
+  let result: MigrationState | undefined;
+  for await (const state of migration.runIter()) {
+    if (state === 'CreatedNewAccount') {
+      console.log('TODO: Log message here');
+    }
+    result = state;
+  }
+
   if (result !== 'RequestedPlcOperation') {
     throw new Error(
       `Fatal: Unexpected migration state "${result}" after initial run. Please report this bug.`,

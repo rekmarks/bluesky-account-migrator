@@ -63,3 +63,20 @@ export type PickPublic<Type> = Pick<
     [K in keyof Type]: K extends `#${string}` ? never : K;
   }[keyof Type]
 >;
+
+/**
+ * Consume an async generator until it yields a value.
+ *
+ * @template Yield - The type of the value to yield.
+ * @param generator - The generator to consume.
+ * @returns The value yielded by the generator.
+ */
+export const consume = async <Yield>(
+  generator: AsyncGenerator<Yield>,
+): Promise<Yield | undefined> => {
+  let result: Yield | undefined;
+  for await (const value of generator) {
+    result = value;
+  }
+  return result;
+};

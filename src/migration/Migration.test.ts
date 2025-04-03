@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { Migration } from './Migration.js';
 import * as operations from './operations/index.js';
-import type { AgentPair } from './types.js';
+import { MigrationStateSchema, type AgentPair } from './types.js';
 import type { MigrationCredentialsWithHandle } from '../../test/utils.js';
 import { makeMockCredentials, mockAccountDid } from '../../test/utils.js';
 
@@ -115,6 +115,49 @@ describe('Migration', () => {
 
       migration.confirmationToken = mockToken;
       expect(await migration.run()).toBe('Finalized');
+    });
+  });
+
+  describe('runIter', () => {
+    it('iterates through all states', async () => {
+      const states = [];
+      const migration = new Migration({
+        credentials: mockCredentials,
+        confirmationToken: mockToken,
+      });
+      for await (const state of migration.runIter()) {
+        states.push(state);
+      }
+
+      expect(states).toStrictEqual(Object.values(MigrationStateSchema.Values));
+    });
+
+    it('stops and resumes if confirmation token is missing during RequestedPlcOperation state', async () => {
+      const states = [];
+      const migration = new Migration({ credentials: mockCredentials });
+      for await (const state of migration.runIter()) {
+        states.push(state);
+      }
+
+      expect(states).toStrictEqual([
+        'Ready',
+        'Initialized',
+        'CreatedNewAccount',
+        'MigratedData',
+        'RequestedPlcOperation',
+      ]);
+
+      states.length = 0;
+      migration.confirmationToken = mockToken;
+      for await (const state of migration.runIter()) {
+        states.push(state);
+      }
+
+      expect(states).toStrictEqual([
+        'RequestedPlcOperation',
+        'MigratedIdentity',
+        'Finalized',
+      ]);
     });
   });
 

@@ -10,6 +10,7 @@ import type {
   MigrationState,
 } from '../../migration/index.js';
 import { Migration } from '../../migration/index.js';
+import { consume } from '../../utils/misc.js';
 
 vi.mock('../../utils/index.js', async (importOriginal) => ({
   ...(await importOriginal()),
@@ -38,7 +39,7 @@ vi.mock('./credentials.js', async (importOriginal) => ({
 describe('handleMigrateInteractive', () => {
   let mockPrivateKey: string | undefined;
   let logSpy: MockInstance<() => void>;
-  const runMock: Mock<() => Promise<MigrationState>> = vi.fn();
+  const runMock: Mock<() => AsyncGenerator<MigrationState>> = vi.fn();
 
   beforeEach(() => {
     mockPrivateKey = undefined;
@@ -51,7 +52,9 @@ describe('handleMigrateInteractive', () => {
     ) {
       this.credentials = arg.credentials;
       this.newPrivateKey = mockPrivateKey;
-      this.run = runMock;
+      this.runIter = runMock;
+      // eslint-disable-next-line vitest/prefer-spy-on
+      this.run = vi.fn(async () => consume(this.runIter()));
       this.state = 'Ready';
       return this as unknown as Migration;
     });
@@ -64,8 +67,12 @@ describe('handleMigrateInteractive', () => {
 
     mockPrivateKey = '0xdeadbeef';
     runMock
-      .mockResolvedValueOnce('RequestedPlcOperation')
-      .mockResolvedValueOnce('Finalized');
+      .mockImplementationOnce(async function* () {
+        yield 'RequestedPlcOperation';
+      })
+      .mockImplementationOnce(async function* () {
+        yield 'Finalized';
+      });
 
     await handleInteractive();
 
@@ -87,12 +94,18 @@ describe('handleMigrateInteractive', () => {
   });
 
   it('should handle a failed migration in the Ready state', async () => {
-    runMock.mockRejectedValueOnce(new Error('foo'));
+    const state = 'Ready';
+    runMock.mockImplementation(async function* (this: MockMigration) {
+      // eslint-disable-next-line no-invalid-this
+      this.state = state;
+      throw new Error('foo');
+      yield state;
+    });
 
     await expect(handleInteractive()).rejects.toThrow(new Error('foo'));
 
     expect(logSpy).toHaveBeenCalledWith(
-      expect.stringContaining('Migration failed during state "Ready"'),
+      expect.stringContaining(`Migration failed during state "${state}"`),
     );
     expect(logSpy).not.toHaveBeenCalledWith(
       expect.stringContaining('The migration has created a new account'),
@@ -103,18 +116,18 @@ describe('handleMigrateInteractive', () => {
   });
 
   it('should handle a failed migration in the CreatedNewAccount state', async () => {
-    runMock.mockImplementation(async function (this: MockMigration) {
+    const state = 'CreatedNewAccount';
+    runMock.mockImplementation(async function* (this: MockMigration) {
       // eslint-disable-next-line no-invalid-this
-      this.state = 'CreatedNewAccount';
-      return Promise.reject(new Error('foo'));
+      this.state = state;
+      throw new Error('foo');
+      yield state;
     });
 
     await expect(handleInteractive()).rejects.toThrow(new Error('foo'));
 
     expect(logSpy).toHaveBeenCalledWith(
-      expect.stringContaining(
-        'Migration failed during state "CreatedNewAccount"',
-      ),
+      expect.stringContaining(`Migration failed during state "${state}"`),
     );
     expect(logSpy).toHaveBeenCalledWith(
       expect.stringContaining('The migration has created a new account'),
@@ -125,19 +138,19 @@ describe('handleMigrateInteractive', () => {
   });
 
   it('should handle a failed migration in the MigratedIdentity state', async () => {
+    const state = 'MigratedIdentity';
     mockPrivateKey = '0xdeadbeef';
-    runMock.mockImplementation(async function (this: MockMigration) {
+    runMock.mockImplementation(async function* (this: MockMigration) {
       // eslint-disable-next-line no-invalid-this
-      this.state = 'MigratedIdentity';
-      return Promise.reject(new Error('foo'));
+      this.state = state;
+      throw new Error('foo');
+      yield state;
     });
 
     await expect(handleInteractive()).rejects.toThrow(new Error('foo'));
 
     expect(logSpy).toHaveBeenCalledWith(
-      expect.stringContaining(
-        'Migration failed during state "MigratedIdentity"',
-      ),
+      expect.stringContaining(`Migration failed during state "${state}"`),
     );
     expect(logSpy).toHaveBeenCalledWith(
       expect.stringContaining('The migration has created a new account'),

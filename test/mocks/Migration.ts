@@ -10,7 +10,7 @@ import type {
   MigrationState,
   Migration as ActualMigration,
 } from '../../src/migration/index.js';
-import type { PickPublic } from '../../src/utils/misc.js';
+import { consume, type PickPublic } from '../../src/utils/misc.js';
 
 const failureCondition = getFailureCondition();
 
@@ -52,7 +52,7 @@ export class Migration implements PickPublic<ActualMigration> {
     return migration;
   }
 
-  async run(): Promise<MigrationState> {
+  async *runIter(): AsyncGenerator<MigrationState> {
     if (this.state === 'Ready' && this.confirmationToken === undefined) {
       this.state = 'RequestedPlcOperation';
     } else {
@@ -62,6 +62,11 @@ export class Migration implements PickPublic<ActualMigration> {
       }
     }
     this.#maybeFail();
+    yield this.state;
+  }
+
+  async run(): Promise<MigrationState> {
+    await consume(this.runIter());
     return this.state;
   }
 
