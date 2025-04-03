@@ -18,8 +18,12 @@ const mockAccountDid = 'did:plc:testuser123';
 
 const mockNewPrivateKey = '0xdeadbeef';
 
+const migrationValues = Object.values(MigrationStateSchema.Values);
+
 export class Migration implements PickPublic<ActualMigration> {
   state: MigrationState = 'Ready';
+
+  stateIndex = 0;
 
   credentials: MigrationCredentials;
 
@@ -53,13 +57,19 @@ export class Migration implements PickPublic<ActualMigration> {
   }
 
   async *runIter(): AsyncGenerator<MigrationState> {
-    if (this.state === 'Ready' && this.confirmationToken === undefined) {
-      this.state = 'RequestedPlcOperation';
-    } else {
-      this.state = 'Finalized';
-      if (this.newPrivateKey === undefined) {
-        this.newPrivateKey = mockNewPrivateKey;
+    while (this.state !== 'Finalized') {
+      yield this.state;
+      if (
+        this.state === 'RequestedPlcOperation' &&
+        this.confirmationToken === undefined
+      ) {
+        return;
       }
+      this.stateIndex++;
+      this.state = migrationValues[this.stateIndex] as MigrationState;
+    }
+    if (this.state === 'Finalized' && this.newPrivateKey === undefined) {
+      this.newPrivateKey = mockNewPrivateKey;
     }
     this.#maybeFail();
     yield this.state;

@@ -24,6 +24,7 @@ const config = createConfig([
     },
 
     rules: {
+      'no-plusplus': 'off',
       'no-void': 'off',
       'prefer-template': 'off',
 
