@@ -1,5 +1,5 @@
 import boxen from 'boxen';
-import { bold, green } from 'yoctocolors-cjs';
+import { bold, green } from 'yoctocolors';
 
 import { confirm, input, password } from './prompts.js';
 import {

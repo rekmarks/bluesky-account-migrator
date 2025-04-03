@@ -1,7 +1,10 @@
 import { getCredentialsInteractive, validateString } from './credentials.js';
 import { input, pressEnter } from './prompts.js';
 import { Migration } from '../../migration/index.js';
-import type { MigrationCredentials } from '../../migration/index.js';
+import type {
+  MigrationCredentials,
+  MigrationState,
+} from '../../migration/index.js';
 import {
   logError,
   logDelimiter,
@@ -9,7 +12,10 @@ import {
   logWelcome,
   logCentered,
   logWrapped,
+  makeSpinner,
 } from '../../utils/index.js';
+
+const spinner = makeSpinner();
 
 /**
  * Handles the interactive migration mode.
@@ -26,6 +32,7 @@ export async function handleInteractive(): Promise<void> {
     const privateKey = await executeMigration(credentials, migration);
     handleSuccess(privateKey);
   } catch (error) {
+    spinner.stop();
     await handleFailure(migration);
     throw error;
   }
@@ -97,7 +104,16 @@ async function executeMigration(
  * @throws {Error} if the resulting migration state is not as expected
  */
 async function beginMigration(migration: Migration): Promise<void> {
-  const result = await migration.run();
+  spinner.start();
+  let result: MigrationState | undefined;
+  for await (const state of migration.runIter()) {
+    if (state !== 'RequestedPlcOperation') {
+      spinner.text = getLoadingMessage(state);
+    }
+    result = state;
+  }
+  spinner.stop();
+
   if (result !== 'RequestedPlcOperation') {
     throw new Error(
       `Fatal: Unexpected migration state "${result}" after initial run. Please report this bug.`,
@@ -138,7 +154,16 @@ async function promptForConfirmationToken(
  * @throws {Error} if the resulting migration state is not as expected
  */
 async function finalizeMigration(migration: Migration): Promise<string> {
-  const result = await migration.run();
+  spinner.start();
+  let result: MigrationState | undefined;
+  for await (const state of migration.runIter()) {
+    if (state !== 'Finalized') {
+      spinner.text = getLoadingMessage(state);
+    }
+    result = state;
+  }
+  spinner.stop();
+
   if (result !== 'Finalized') {
     throw new Error(
       `Fatal: Unexpected migration state "${result}" after resuming migration. Please report this bug.`,
@@ -193,4 +218,24 @@ function logPrivateKey(privateKey: string): void {
   console.log();
   logDelimiter('=');
   console.log();
+}
+
+function getLoadingMessage(state: MigrationState) {
+  switch (state) {
+    case 'Ready':
+      return 'Initializing migration...';
+    case 'Initialized':
+      return 'Creating new account...';
+    case 'CreatedNewAccount':
+      return 'Migrating data... (this may take a while)';
+    case 'MigratedData':
+      return 'Requesting PLC operation...';
+    case 'RequestedPlcOperation':
+      return 'Migrating identity...';
+    case 'MigratedIdentity':
+      return 'Finalizing migration...';
+    case 'Finalized':
+    default:
+      return '';
+  }
 }

@@ -1,4 +1,5 @@
 import {
+  migrationStateValues,
   MigrationStateSchema,
   SerializedMigrationSchema,
   stateUtils,
@@ -10,7 +11,7 @@ import type {
   MigrationState,
   Migration as ActualMigration,
 } from '../../src/migration/index.js';
-import type { PickPublic } from '../../src/utils/misc.js';
+import { consume, type PickPublic } from '../../src/utils/misc.js';
 
 const failureCondition = getFailureCondition();
 
@@ -20,6 +21,8 @@ const mockNewPrivateKey = '0xdeadbeef';
 
 export class Migration implements PickPublic<ActualMigration> {
   state: MigrationState = 'Ready';
+
+  stateIndex = 0;
 
   credentials: MigrationCredentials;
 
@@ -52,16 +55,28 @@ export class Migration implements PickPublic<ActualMigration> {
     return migration;
   }
 
-  async run(): Promise<MigrationState> {
-    if (this.state === 'Ready' && this.confirmationToken === undefined) {
-      this.state = 'RequestedPlcOperation';
-    } else {
-      this.state = 'Finalized';
-      if (this.newPrivateKey === undefined) {
-        this.newPrivateKey = mockNewPrivateKey;
+  async *runIter(): AsyncGenerator<MigrationState> {
+    while (this.state !== 'Finalized') {
+      yield this.state;
+      if (
+        this.state === 'RequestedPlcOperation' &&
+        this.confirmationToken === undefined
+      ) {
+        return;
       }
+      this.stateIndex++;
+      this.state = migrationStateValues[this.stateIndex] as MigrationState;
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+    if (this.state === 'Finalized' && this.newPrivateKey === undefined) {
+      this.newPrivateKey = mockNewPrivateKey;
     }
     this.#maybeFail();
+    yield this.state;
+  }
+
+  async run(): Promise<MigrationState> {
+    await consume(this.runIter());
     return this.state;
   }
 

@@ -15,6 +15,7 @@ export type MockMigration = {
   confirmationToken?: string | undefined;
   newPrivateKey?: string | undefined;
   run: Mock<() => Promise<MigrationState>>;
+  runIter: Mock<() => AsyncGenerator<MigrationState>>;
   state: MigrationState;
   serialize: Mock<() => SerializedMigration>;
   deserialize: Mock<() => Migration>;

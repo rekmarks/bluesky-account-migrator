@@ -12,7 +12,7 @@ import {
   SerializedMigrationSchema,
   stateUtils,
 } from './types.js';
-import { handleUnknownError } from '../utils/index.js';
+import { consume, handleUnknownError } from '../utils/index.js';
 
 type BaseData = {
   credentials: MigrationCredentials;
@@ -244,20 +244,24 @@ export class Migration {
   }
 
   /**
-   * Runs the migration state machine. Either runs to completion or stops and
-   * returns the current state if the migration is not ready to proceed.
+   * Iterates through the migration state machine, yielding every state, including
+   * the current state when this method is called.
+   *
+   * Either runs to completion or stops and returns after yielding the current
+   * state if the migration is not ready to proceed.
    *
    * Calls {@link teardown} if the migration is finalized.
    *
-   * @returns The current state of the migration.
+   * @yields The current state of the migration.
    */
-  async run(): Promise<MigrationState> {
+  async *runIter(): AsyncGenerator<MigrationState> {
     while (this.#state !== 'Finalized') {
+      yield this.#state;
       if (
         this.#state === 'RequestedPlcOperation' &&
         !('confirmationToken' in this.#data)
       ) {
-        return this.#state;
+        return;
       }
 
       const config = stateMachineConfig[this.#state];
@@ -282,6 +286,19 @@ export class Migration {
     }
 
     await this.teardown();
+    yield this.#state;
+  }
+
+  /**
+   * Runs the migration state machine. Either runs to completion or stops and
+   * returns the current state if the migration is not ready to proceed.
+   *
+   * Calls {@link teardown} if the migration is finalized.
+   *
+   * @returns The current state of the migration.
+   */
+  async run(): Promise<MigrationState> {
+    await consume(this.runIter());
     return this.#state;
   }
 
