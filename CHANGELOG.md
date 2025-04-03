@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0]
+
+### Added
+
+- Add loading indicator to interactive mode ([#77](https://github.com/rekmarks/bluesky-account-migrator.git/pull/77))
+
+### Fixed
+
+- Ensure custom handle credentials are set correctly in interactive mode ([#53](https://github.com/rekmarks/bluesky-account-migrator.git/pull/53))
+
 ## [0.4.0]
 
 ### Added
@@ -62,7 +72,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release ([#12](https://github.com/rekmarks/bluesky-account-migrator/pull/12))
 
-[Unreleased]: https://github.com/rekmarks/bluesky-account-migrator.git/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/rekmarks/bluesky-account-migrator.git/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/rekmarks/bluesky-account-migrator.git/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/rekmarks/bluesky-account-migrator.git/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/rekmarks/bluesky-account-migrator.git/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/rekmarks/bluesky-account-migrator.git/compare/v0.2.0...v0.2.1
