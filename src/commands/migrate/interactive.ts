@@ -30,7 +30,7 @@ export async function handleInteractive(): Promise<void> {
 
   try {
     const privateKey = await executeMigration(credentials, migration);
-    handleSuccess(privateKey);
+    await handleSuccess(privateKey);
   } catch (error) {
     spinner.stop();
     await handleFailure(migration);
@@ -178,15 +178,15 @@ async function finalizeMigration(migration: Migration): Promise<string> {
   return migration.newPrivateKey;
 }
 
-function handleSuccess(privateKey: string): void {
+async function handleSuccess(privateKey: string): Promise<void> {
   console.log();
   logCentered('Migration completed successfully! ✅');
   console.log();
-  logPrivateKey(privateKey);
-  console.log();
   logWarning(
-    `You must save this key in a secure location, or you could lose access to your account.`,
+    `You must save the private key in a secure location, or you could lose access to your account.`,
   );
+  console.log();
+  await logPrivateKey(privateKey);
   console.log();
   logCentered('Thank you for using the Bluesky account migration tool 🙇');
 }
@@ -205,12 +205,14 @@ async function handleFailure(migration: Migration): Promise<void> {
     console.log();
     logError('You should still save the private key in a secure location.');
     console.log();
-    logPrivateKey(migration.newPrivateKey);
+    await logPrivateKey(migration.newPrivateKey);
     await pressEnter();
   }
 }
 
-function logPrivateKey(privateKey: string): void {
+async function logPrivateKey(privateKey: string): Promise<void> {
+  await pressEnter("Press Enter to view the new account's private key...");
+  console.log();
   logWrapped(`The new account's private key is:`);
   logDelimiter('=');
   console.log();

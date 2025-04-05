@@ -69,7 +69,7 @@ export const logCentered = (message: string, padding: number = 3) => {
   console.log(output);
 };
 
-function wrap(message: string, padding = 0) {
+export function wrap(message: string, padding = 0) {
   return wrapAnsi(message, getTermWidth() - padding, { hard: true });
 }
 

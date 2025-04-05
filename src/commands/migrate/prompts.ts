@@ -1,10 +1,11 @@
+import { createPrompt, useKeypress, isEnterKey } from '@inquirer/core';
 import {
   confirm as _confirm,
   input as _input,
   password as _password,
 } from '@inquirer/prompts';
 
-import { logWrapped } from '../../utils/terminal.js';
+import { wrap } from '../../utils/terminal.js';
 
 const wrapPrompt = <PromptFn extends (...args: any[]) => Promise<unknown>>(
   prompt: PromptFn,
@@ -28,13 +29,16 @@ export const input = wrapPrompt(_input) as typeof _input;
 export const password = wrapPrompt(_password) as typeof _password;
 export const confirm = wrapPrompt(_confirm) as typeof _confirm;
 
-export const pressEnter = async (message = 'Press Enter to continue...') => {
-  logWrapped(message);
-  process.stdin.resume();
-  await new Promise<void>((resolve) =>
-    process.stdin.once('data', () => {
-      process.stdin.pause();
-      resolve();
-    }),
-  );
-};
+const _pressEnter = wrapPrompt(
+  createPrompt<boolean, string>((message, done) => {
+    useKeypress((key, _rl) => {
+      if (isEnterKey(key)) {
+        done(true);
+      }
+    });
+    return wrap(message);
+  }),
+);
+
+export const pressEnter = async (message = 'Press Enter to continue...') =>
+  _pressEnter(message);
