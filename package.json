@@ -63,6 +63,7 @@
   "dependencies": {
     "@atproto/api": "^0.14.19",
     "@atproto/crypto": "^0.4.2",
+    "@inquirer/core": "^10.1.4",
     "@inquirer/prompts": "^7.2.0",
     "boxen": "^8.0.1",
     "uint8arrays": "^5.1.0",
