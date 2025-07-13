@@ -61,7 +61,7 @@
     "test:e2e": "vitest run -c vitest.config.e2e.ts"
   },
   "dependencies": {
-    "@atproto/api": "^0.14.19",
+    "@atproto/api": "^0.15.25",
     "@atproto/crypto": "^0.4.2",
     "@inquirer/core": "^10.1.4",
     "@inquirer/prompts": "^7.2.0",
