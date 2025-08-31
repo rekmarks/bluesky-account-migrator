@@ -40,8 +40,8 @@ importers:
         version: 2.1.1
     devDependencies:
       '@atproto/xrpc':
-        specifier: ^0.6.5
-        version: 0.6.12
+        specifier: ^0.7.4
+        version: 0.7.4
       '@lavamoat/preinstall-always-fail':
         specifier: ^2.1.0
         version: 2.1.0
@@ -136,6 +136,9 @@ packages:
   '@atproto/common-web@0.4.1':
     resolution: {integrity: sha512-Ghh+djHYMAUCktLKwr2IuGgtjcwSWGudp+K7+N7KBA9pDDloOXUEY8Agjc5SHSo9B1QIEFkegClU5n+apn2e0w==}
 
+  '@atproto/common-web@0.4.2':
+    resolution: {integrity: sha512-vrXwGNoFGogodjQvJDxAeP3QbGtawgZute2ed1XdRO0wMixLk3qewtikZm06H259QDJVu6voKC5mubml+WgQUw==}
+
   '@atproto/crypto@0.4.4':
     resolution: {integrity: sha512-Yq9+crJ7WQl7sxStVpHgie5Z51R05etaK9DLWYG/7bR5T4bhdcIgF6IfklLShtZwLYdVVj+K15s0BqW9a8PSDA==}
     engines: {node: '>=18.7.0'}
@@ -143,11 +146,20 @@ packages:
   '@atproto/lexicon@0.4.10':
     resolution: {integrity: sha512-uDbP20vetBgtXPuxoyRcvOGBt2gNe1dFc9yYKcb6jWmXfseHiGTnIlORJOLBXIT2Pz15Eap4fLxAu6zFAykD5A==}
 
+  '@atproto/lexicon@0.5.0':
+    resolution: {integrity: sha512-3aAzEAy9EAPs3CxznzMhEcqDd7m3vz1eze/ya9/ThbB7yleqJIhz5GY2q76tCCwHPhn5qDDMhlA9kKV6fG23gA==}
+
   '@atproto/syntax@0.4.0':
     resolution: {integrity: sha512-b9y5ceHS8YKOfP3mdKmwAx5yVj9294UN7FG2XzP6V5aKUdFazEYRnR9m5n5ZQFKa3GNvz7de9guZCJ/sUTcOAA==}
 
+  '@atproto/syntax@0.4.1':
+    resolution: {integrity: sha512-CJdImtLAiFO+0z3BWTtxwk6aY5w4t8orHTMVJgkf++QRJWTxPbIFko/0hrkADB7n2EruDxDSeAgfUGehpH6ngw==}
+
   '@atproto/xrpc@0.6.12':
     resolution: {integrity: sha512-Ut3iISNLujlmY9Gu8sNU+SPDJDvqlVzWddU8qUr0Yae5oD4SguaUFjjhireMGhQ3M5E0KljQgDbTmnBo1kIZ3w==}
+
+  '@atproto/xrpc@0.7.4':
+    resolution: {integrity: sha512-sDi68+QE1XHegTaNAndlX41Gp827pouSzSs8CyAwhrqZdsJUxE3P7TMtrA0z+zAjvxVyvzscRc0TsN/fGUGrhw==}
 
   '@babel/code-frame@7.26.2':
     resolution: {integrity: sha512-RJlIHRueQgwWitWgF8OdFYGZX328Ax5BCemNGlqHfplnRT9ESi8JkFlvaVYbS+UubVY6dpv87Fs2u5M29iNFVQ==}
@@ -1270,6 +1282,15 @@ packages:
 
   debug@4.4.0:
     resolution: {integrity: sha512-6WTZ/IxCY/T6BALoZHaE4ctp9xm+Z5kY/pzYaCHRFeyVhojxlrm+46y68HA6hr0TcwEssoxNiDEUJQjfPZ/RYA==}
+    engines: {node: '>=6.0'}
+    peerDependencies:
+      supports-color: '*'
+    peerDependenciesMeta:
+      supports-color:
+        optional: true
+
+  debug@4.4.1:
+    resolution: {integrity: sha512-KcKCqiftBJcZr++7ykoDIEwSa3XWowTfNPo92BYxjXiyYEVrUQh2aLyhxBCwww+heortUFxEJYcRzosstTEBYQ==}
     engines: {node: '>=6.0'}
     peerDependencies:
       supports-color: '*'
@@ -2461,6 +2482,13 @@ snapshots:
       uint8arrays: 3.0.0
       zod: 3.24.1
 
+  '@atproto/common-web@0.4.2':
+    dependencies:
+      graphemer: 1.4.0
+      multiformats: 9.9.0
+      uint8arrays: 3.0.0
+      zod: 3.24.1
+
   '@atproto/crypto@0.4.4':
     dependencies:
       '@noble/curves': 1.8.1
@@ -2475,11 +2503,26 @@ snapshots:
       multiformats: 9.9.0
       zod: 3.24.1
 
+  '@atproto/lexicon@0.5.0':
+    dependencies:
+      '@atproto/common-web': 0.4.2
+      '@atproto/syntax': 0.4.1
+      iso-datestring-validator: 2.2.2
+      multiformats: 9.9.0
+      zod: 3.24.1
+
   '@atproto/syntax@0.4.0': {}
+
+  '@atproto/syntax@0.4.1': {}
 
   '@atproto/xrpc@0.6.12':
     dependencies:
       '@atproto/lexicon': 0.4.10
+      zod: 3.24.1
+
+  '@atproto/xrpc@0.7.4':
+    dependencies:
+      '@atproto/lexicon': 0.5.0
       zod: 3.24.1
 
   '@babel/code-frame@7.26.2':
@@ -3200,7 +3243,7 @@ snapshots:
       '@typescript-eslint/types': 8.18.0
       '@typescript-eslint/typescript-estree': 8.18.0(typescript@5.7.2)
       '@typescript-eslint/visitor-keys': 8.18.0
-      debug: 4.4.0
+      debug: 4.4.1
       eslint: 9.17.0
       typescript: 5.7.2
     transitivePeerDependencies:
@@ -3220,7 +3263,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/typescript-estree': 8.18.0(typescript@5.7.2)
       '@typescript-eslint/utils': 8.18.0(eslint@9.17.0)(typescript@5.7.2)
-      debug: 4.4.0
+      debug: 4.4.1
       eslint: 9.17.0
       ts-api-utils: 1.4.3(typescript@5.7.2)
       typescript: 5.7.2
@@ -3552,6 +3595,10 @@ snapshots:
       ms: 2.1.3
 
   debug@4.4.0:
+    dependencies:
+      ms: 2.1.3
+
+  debug@4.4.1:
     dependencies:
       ms: 2.1.3
 
