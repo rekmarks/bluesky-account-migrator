@@ -188,7 +188,7 @@ async function handleSuccess(privateKey: string): Promise<void> {
   console.log();
   await logPrivateKey(privateKey);
   console.log();
-  logCentered('Thank you for using the Bluesky account migration tool 🙇');
+  logCentered('Happy posting! 🦋');
 }
 
 async function handleFailure(migration: Migration): Promise<void> {
