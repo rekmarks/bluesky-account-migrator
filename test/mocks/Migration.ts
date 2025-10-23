@@ -10,8 +10,10 @@ import type {
   SerializedMigration,
   MigrationState,
   Migration as ActualMigration,
+  AccountStatuses,
 } from '../../src/migration/index.js';
-import { consume, type PickPublic } from '../../src/utils/misc.js';
+import { consume } from '../../src/utils/misc.js';
+import { makeMockAccountStatuses, type PickPublic } from '../utils.js';
 
 const failureCondition = getFailureCondition();
 
@@ -32,6 +34,8 @@ export class Migration implements PickPublic<ActualMigration> {
 
   confirmationToken: string | undefined;
 
+  accountStatuses: AccountStatuses | undefined;
+
   agents = {
     oldAgent: {},
     newAgent: {},
@@ -51,6 +55,8 @@ export class Migration implements PickPublic<ActualMigration> {
       'confirmationToken' in parsed ? parsed.confirmationToken : undefined;
     migration.newPrivateKey =
       'newPrivateKey' in parsed ? parsed.newPrivateKey : undefined;
+    migration.accountStatuses =
+      'accountStatuses' in parsed ? parsed.accountStatuses : undefined;
 
     return migration;
   }
@@ -97,6 +103,7 @@ export class Migration implements PickPublic<ActualMigration> {
     const data: SerializedMigration = {
       state: this.state,
       credentials: this.credentials,
+      accountStatuses: this.accountStatuses,
       // Lie about these
       confirmationToken: this.confirmationToken as string,
       newPrivateKey: this.newPrivateKey as string,

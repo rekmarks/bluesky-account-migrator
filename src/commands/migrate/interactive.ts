@@ -235,9 +235,13 @@ function getLoadingMessage(state: MigrationState) {
     case 'RequestedPlcOperation':
       return 'Migrating identity...';
     case 'MigratedIdentity':
+      return 'Verifying account status...';
+    case 'CheckedAccountStatus':
       return 'Finalizing migration...';
     case 'Finalized':
-    default:
       return '';
+    default:
+      // @ts-expect-error Exhaustiveness check
+      throw new Error(`No loading message for state: ${state.toString()}`);
   }
 }

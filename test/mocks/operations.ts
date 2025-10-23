@@ -3,6 +3,7 @@ import type {
   MigrationCredentials,
   MigrationState,
 } from '../../src/migration/types.js';
+import { makeMockAccountStatuses } from '../utils.js';
 
 export type MockOperationPlan = {
   failureState?: MigrationState;
@@ -57,6 +58,13 @@ export const migrateIdentity = async () => {
   return plan.newPrivateKey;
 };
 
-export const finalize = async () => {
+export const checkAccountStatus = async () => {
   failIfPlanned('MigratedIdentity');
+  return {
+    accountStatuses: makeMockAccountStatuses(),
+  };
+};
+
+export const finalize = async () => {
+  failIfPlanned('CheckedAccountStatus');
 };

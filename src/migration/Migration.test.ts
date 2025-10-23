@@ -4,7 +4,11 @@ import { Migration } from './Migration.js';
 import * as operations from './operations/index.js';
 import { MigrationStateSchema, type AgentPair } from './types.js';
 import type { MigrationCredentialsWithHandle } from '../../test/utils.js';
-import { makeMockCredentials, mockAccountDid } from '../../test/utils.js';
+import {
+  makeMockAccountStatuses,
+  makeMockCredentials,
+  mockAccountDid,
+} from '../../test/utils.js';
 
 vi.mock('./operations/index.js', () => ({
   initializeAgents: vi.fn(),
@@ -12,6 +16,7 @@ vi.mock('./operations/index.js', () => ({
   migrateData: vi.fn(),
   requestPlcOperation: vi.fn(),
   migrateIdentity: vi.fn(),
+  checkAccountStatus: vi.fn(),
   finalize: vi.fn(),
 }));
 
@@ -38,6 +43,9 @@ describe('Migration', () => {
     mockCredentials = makeMockCredentials();
     vi.mocked(operations.initializeAgents).mockResolvedValue(makeMockAgents());
     vi.mocked(operations.migrateIdentity).mockResolvedValue(mockPrivateKey);
+    vi.mocked(operations.checkAccountStatus).mockResolvedValue({
+      accountStatuses: makeMockAccountStatuses(),
+    });
   });
 
   describe('constructor', () => {
@@ -78,6 +86,9 @@ describe('Migration', () => {
       expect(operations.migrateIdentity).toHaveBeenCalledWith({
         agents: agentsMatcher,
         confirmationToken: mockToken,
+      });
+      expect(operations.checkAccountStatus).toHaveBeenCalledWith({
+        agents: agentsMatcher,
       });
       expect(operations.finalize).toHaveBeenCalledWith({
         agents: agentsMatcher,
@@ -156,6 +167,7 @@ describe('Migration', () => {
       expect(states).toStrictEqual([
         'RequestedPlcOperation',
         'MigratedIdentity',
+        'CheckedAccountStatus',
         'Finalized',
       ]);
     });
@@ -226,6 +238,7 @@ describe('Migration', () => {
         credentials: mockCredentials,
         confirmationToken: mockToken,
         newPrivateKey: mockPrivateKey,
+        accountStatuses: makeMockAccountStatuses(),
       });
     });
   });
@@ -261,6 +274,7 @@ describe('Migration', () => {
         credentials: mockCredentials,
         confirmationToken: mockToken,
         newPrivateKey: mockPrivateKey,
+        accountStatuses: makeMockAccountStatuses(),
       });
 
       expect(migration.state).toBe('Finalized');
@@ -317,6 +331,30 @@ describe('Migration', () => {
         identifier: mockCredentials.newHandle.handle,
         password: mockCredentials.newPassword,
       });
+    });
+
+    it.each([
+      'CheckedAccountStatus',
+      'Finalized',
+    ])('deserializing a migration in the %s state checks account statuses', async (state) => {
+      const migration = await Migration.deserialize({
+        state,
+        credentials: mockCredentials,
+        confirmationToken: mockToken,
+        newPrivateKey: mockPrivateKey,
+      });
+      expect(migration.accountStatuses).toStrictEqual(makeMockAccountStatuses());
+    });
+
+    it('re-checking account statuses overwrites old account statuses', async () => {
+      const migration = await Migration.deserialize({
+        state: 'CheckedAccountStatus',
+        credentials: mockCredentials,
+        confirmationToken: mockToken,
+        newPrivateKey: mockPrivateKey,
+        accountStatuses: makeMockAccountStatuses({ importedBlobs: 999 }),
+      });
+      expect(migration.accountStatuses).toStrictEqual(makeMockAccountStatuses());
     });
   });
 });
