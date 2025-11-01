@@ -333,18 +333,20 @@ describe('Migration', () => {
       });
     });
 
-    it.each([
-      'CheckedAccountStatus',
-      'Finalized',
-    ])('deserializing a migration in the %s state checks account statuses', async (state) => {
-      const migration = await Migration.deserialize({
-        state,
-        credentials: mockCredentials,
-        confirmationToken: mockToken,
-        newPrivateKey: mockPrivateKey,
-      });
-      expect(migration.accountStatuses).toStrictEqual(makeMockAccountStatuses());
-    });
+    it.each(['CheckedAccountStatus', 'Finalized'])(
+      'deserializing a migration in the %s state checks account statuses',
+      async (state) => {
+        const migration = await Migration.deserialize({
+          state,
+          credentials: mockCredentials,
+          confirmationToken: mockToken,
+          newPrivateKey: mockPrivateKey,
+        });
+        expect(migration.accountStatuses).toStrictEqual(
+          makeMockAccountStatuses(),
+        );
+      },
+    );
 
     it('re-checking account statuses overwrites old account statuses', async () => {
       const migration = await Migration.deserialize({
@@ -354,7 +356,9 @@ describe('Migration', () => {
         newPrivateKey: mockPrivateKey,
         accountStatuses: makeMockAccountStatuses({ importedBlobs: 999 }),
       });
-      expect(migration.accountStatuses).toStrictEqual(makeMockAccountStatuses());
+      expect(migration.accountStatuses).toStrictEqual(
+        makeMockAccountStatuses(),
+      );
     });
   });
 });

@@ -13,7 +13,7 @@ import type {
   AccountStatuses,
 } from '../../src/migration/index.js';
 import { consume } from '../../src/utils/misc.js';
-import { makeMockAccountStatuses, type PickPublic } from '../utils.js';
+import type { PickPublic } from '../utils.js';
 
 const failureCondition = getFailureCondition();
 
