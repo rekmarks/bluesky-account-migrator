@@ -1,6 +1,14 @@
 import type { AtpAgent } from '@atproto/api';
-import type { TypeOf } from 'zod';
-import { custom, enum as zEnum, object, string, union } from 'zod';
+import type { TypeOf, ZodType } from 'zod';
+import {
+  boolean,
+  custom,
+  enum as zEnum,
+  number,
+  object,
+  string,
+  union,
+} from 'zod';
 
 import { isEmail, isHandle, isHttpUrl } from '../utils/index.js';
 
@@ -11,6 +19,7 @@ export const migrationStateValues = Object.freeze([
   'MigratedData',
   'RequestedPlcOperation',
   'MigratedIdentity',
+  'CheckedAccountStatus',
   'Finalized',
 ] as const);
 
@@ -80,25 +89,66 @@ export const MigrationCredentialsSchema = object({
   },
 );
 
-export const makeMigrationCredentials = (
+/**
+ * @see https://docs.bsky.app/docs/api/com-atproto-server-check-account-status
+ */
+export type AccountStatus = Prettify<
+  Awaited<
+    ReturnType<AtpAgent['com']['atproto']['server']['checkAccountStatus']>
+  >['data']
+>;
+
+export const AccountStatusSchema = object({
+  activated: boolean(),
+  validDid: boolean(),
+  repoCommit: string(),
+  repoRev: string(),
+  repoBlocks: number(),
+  indexedRecords: number(),
+  privateStateValues: number(),
+  expectedBlobs: number(),
+  importedBlobs: number(),
+}).passthrough() satisfies ZodType<AccountStatus>;
+
+export const AccountStatusesSchema = object({
+  old: AccountStatusSchema,
+  new: AccountStatusSchema,
+}).strict();
+
+export type AccountStatuses = TypeOf<typeof AccountStatusesSchema>;
+
+export const parseMigrationCredentials = (
   value: unknown,
 ): MigrationCredentials => MigrationCredentialsSchema.parse(value);
 
 const InitialSerializedMigration = object({
-  state: MigrationStateSchema.exclude(['MigratedIdentity', 'Finalized']),
+  state: MigrationStateSchema.exclude([
+    'MigratedIdentity',
+    'CheckedAccountStatus',
+    'Finalized',
+  ]),
   credentials: MigrationCredentialsSchema,
   confirmationToken: string().optional(),
 });
 
-const UltimateSerializedMigration = object({
-  state: MigrationStateSchema.extract(['MigratedIdentity', 'Finalized']),
-  credentials: MigrationCredentialsSchema,
+const MigratedIdentitySerializedMigration = InitialSerializedMigration.pick({
+  credentials: true,
+}).extend({
+  state: MigrationStateSchema.extract(['MigratedIdentity']),
   confirmationToken: string(),
   newPrivateKey: string(),
 });
 
+const UltimateSerializedMigration = MigratedIdentitySerializedMigration.omit({
+  state: true,
+}).extend({
+  state: MigrationStateSchema.extract(['CheckedAccountStatus', 'Finalized']),
+  accountStatuses: AccountStatusesSchema.optional(),
+});
+
 export const SerializedMigrationSchema = union([
   InitialSerializedMigration,
+  MigratedIdentitySerializedMigration,
   UltimateSerializedMigration,
 ]);
 
@@ -142,3 +192,10 @@ export type PlcOperationParams = {
   alsoKnownAs?: string[];
   services?: Record<string, unknown>;
 };
+
+/**
+ * Make obscure object types more readable.
+ */
+type Prettify<Something> = {
+  [Key in keyof Something]: Something[Key];
+} & {};

@@ -53,23 +53,11 @@ export const intoError = (error: unknown): Error => {
 };
 
 /**
- * Pick non-`#` properties from a type.
- *
- * @template Type - The type to pick public properties from.
- */
-export type PickPublic<Type> = Pick<
-  Type,
-  {
-    [K in keyof Type]: K extends `#${string}` ? never : K;
-  }[keyof Type]
->;
-
-/**
- * Consume an async generator until it yields a value.
+ * Consume an async generator, returning the last value yielded.
  *
  * @template Yield - The type of the value to yield.
  * @param generator - The generator to consume.
- * @returns The value yielded by the generator.
+ * @returns The last value yielded by the generator.
  */
 export const consume = async <Yield>(
   generator: AsyncGenerator<Yield>,

@@ -4,7 +4,7 @@ import { bold, green } from 'yoctocolors';
 import { confirm, input, password } from './prompts.js';
 import {
   isPdsSubdomain,
-  makeMigrationCredentials,
+  parseMigrationCredentials,
   type MigrationCredentials,
 } from '../../migration/index.js';
 import {
@@ -137,7 +137,7 @@ export async function getCredentialsInteractive(): Promise<
 
   let credentials: MigrationCredentials;
   try {
-    credentials = makeMigrationCredentials(rawCredentials);
+    credentials = parseMigrationCredentials(rawCredentials);
   } catch (error) {
     logCredentials(rawCredentials);
     throw handleUnknownError(

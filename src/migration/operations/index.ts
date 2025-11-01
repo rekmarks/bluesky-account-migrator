@@ -4,3 +4,4 @@ export * from './finalize.js';
 export * from './identity.js';
 export * from './initialize.js';
 export * from './request-plc-operation.js';
+export * from './check-account-status.js';

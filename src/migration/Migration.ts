@@ -1,6 +1,6 @@
 import * as operations from './operations/index.js';
-import { initializeAgents } from './operations/index.js';
 import type {
+  AccountStatuses,
   AgentPair,
   MigrationCredentials,
   MigrationState,
@@ -19,11 +19,15 @@ type BaseData = {
   confirmationToken?: string | undefined;
 };
 
-type FinalData = {
+type MigratedIdentityData = {
   credentials: MigrationCredentials;
   confirmationToken: string;
   newPrivateKey: string;
 };
+
+type FinalData = {
+  accountStatuses: AccountStatuses;
+} & MigratedIdentityData;
 
 const { enum: stateEnum } = MigrationStateSchema;
 
@@ -47,9 +51,12 @@ type Transitions = {
       }
     | {
         nextState: 'MigratedIdentity';
-        data: FinalData;
+        data: MigratedIdentityData;
       };
   [stateEnum.MigratedIdentity]: {
+    nextState: 'CheckedAccountStatus';
+  };
+  [stateEnum.CheckedAccountStatus]: {
     nextState: 'Finalized';
   };
   [stateEnum.Finalized]: never;
@@ -61,7 +68,8 @@ type ExpectedData = {
   [stateEnum.CreatedNewAccount]: BaseData;
   [stateEnum.MigratedData]: BaseData;
   [stateEnum.RequestedPlcOperation]: BaseData;
-  [stateEnum.MigratedIdentity]: FinalData;
+  [stateEnum.MigratedIdentity]: MigratedIdentityData;
+  [stateEnum.CheckedAccountStatus]: FinalData;
   [stateEnum.Finalized]: FinalData;
 };
 
@@ -110,10 +118,24 @@ const stateMachineConfig: StateMachineConfig = {
     });
     return {
       nextState: 'MigratedIdentity',
-      data: { credentials, confirmationToken, newPrivateKey },
+      data: {
+        credentials,
+        confirmationToken,
+        newPrivateKey,
+      } satisfies MigratedIdentityData,
     };
   },
-  MigratedIdentity: async ({ credentials }, agents) => {
+  MigratedIdentity: async (data, agents) => {
+    const { accountStatuses } = await operations.checkAccountStatus({ agents });
+    return {
+      nextState: 'CheckedAccountStatus',
+      data: {
+        ...data,
+        accountStatuses,
+      } satisfies FinalData,
+    };
+  },
+  CheckedAccountStatus: async ({ credentials }, agents) => {
     await operations.finalize({ agents, credentials });
     return {
       nextState: 'Finalized',
@@ -183,6 +205,12 @@ export class Migration {
     if ('newPrivateKey' in parsed) {
       migration.#newPrivateKey = parsed.newPrivateKey;
     }
+    if (
+      parsed.state === 'CheckedAccountStatus' ||
+      parsed.state === 'Finalized'
+    ) {
+      await migration.#checkAccountStatuses();
+    }
     return migration;
   }
 
@@ -198,7 +226,9 @@ export class Migration {
   }
 
   static async #restoreAgents(parsed: SerializedMigration): Promise<AgentPair> {
-    const agents = await initializeAgents({ credentials: parsed.credentials });
+    const agents = await operations.initializeAgents({
+      credentials: parsed.credentials,
+    });
 
     if (stateUtils.gte(parsed.state, 'CreatedNewAccount')) {
       await agents.newAgent.login({
@@ -224,6 +254,25 @@ export class Migration {
       throw new Error(`Fatal: "newPrivateKey" already set`);
     }
     this.#data = { ...this.#data, newPrivateKey: privateKey };
+  }
+
+  get accountStatuses() {
+    return 'accountStatuses' in this.#data
+      ? {
+          old: { ...this.#data.accountStatuses.old },
+          new: { ...this.#data.accountStatuses.new },
+        }
+      : undefined;
+  }
+
+  async #checkAccountStatuses() {
+    if (!this.#agents) {
+      throw new Error(`Fatal: "agents" not set`);
+    }
+    const { accountStatuses } = await operations.checkAccountStatus({
+      agents: this.#agents,
+    });
+    this.#data = { ...this.#data, accountStatuses };
   }
 
   get state() {
@@ -264,10 +313,10 @@ export class Migration {
         return;
       }
 
-      const config = stateMachineConfig[this.#state];
       try {
+        const transition = stateMachineConfig[this.#state];
         // @ts-expect-error TypeScript can't know whether this.#data is a valid parameter.
-        const result = await config(this.#data, this.#agents);
+        const result = await transition(this.#data, this.#agents);
         this.#state = result.nextState;
         if ('agents' in result) {
           this.#agents = result.agents;

@@ -5,6 +5,7 @@ import { vi } from 'vitest';
 
 import type { Migration, operations } from '../src/migration/index.js';
 import type {
+  AccountStatus,
   MigrationCredentials,
   MigrationState,
   SerializedMigration,
@@ -40,6 +41,29 @@ export const makeMockCredentialsWithFinalHandle = (
     temporaryHandle: 'new.foo.com',
     finalHandle,
   },
+});
+
+export const makeMockAccountStatus = (
+  options: Partial<AccountStatus> = {},
+): AccountStatus => ({
+  activated: true,
+  validDid: true,
+  repoCommit: 'commit123',
+  repoRev: 'rev123',
+  repoBlocks: 100,
+  indexedRecords: 50,
+  privateStateValues: 10,
+  expectedBlobs: 20,
+  importedBlobs: 20,
+  ...options,
+});
+
+export const makeMockAccountStatuses = (
+  oldOptions: Partial<AccountStatus> = {},
+  newOptions: Partial<AccountStatus> = { activated: false },
+): { old: AccountStatus; new: AccountStatus } => ({
+  old: makeMockAccountStatus(oldOptions),
+  new: makeMockAccountStatus(newOptions),
 });
 
 export type MigrationCredentialsWithHandle = Exclude<
@@ -89,6 +113,7 @@ export const makeMockOperations = (
   migrateData: vi.fn(),
   requestPlcOperation: vi.fn(),
   migrateIdentity: vi.fn(),
+  checkAccountStatus: vi.fn(),
   finalize: vi.fn(),
   ...mocks,
 });
@@ -119,11 +144,12 @@ export function makeMockAgent(did?: string): Mocked<AtpAgent> {
     com: {
       atproto: {
         server: {
+          activateAccount: vi.fn(),
+          checkAccountStatus: vi.fn(),
+          createAccount: vi.fn(),
+          deactivateAccount: vi.fn(),
           describeServer: vi.fn(),
           getServiceAuth: vi.fn(),
-          createAccount: vi.fn(),
-          activateAccount: vi.fn(),
-          deactivateAccount: vi.fn(),
         },
         sync: {
           getRepo: vi.fn(),
@@ -145,3 +171,15 @@ export function makeMockAgent(did?: string): Mocked<AtpAgent> {
     },
   } as unknown as Mocked<AtpAgent>;
 }
+
+/**
+ * Pick non-`#` properties from a type.
+ *
+ * @template Type - The type to pick public properties from.
+ */
+export type PickPublic<Type> = Pick<
+  Type,
+  {
+    [K in keyof Type]: K extends `#${string}` ? never : K;
+  }[keyof Type]
+>;

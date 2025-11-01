@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { handlePipe } from './pipe.js';
 import {
+  makeMockAccountStatuses,
   makeMockCredentials,
   makeMockCredentialsWithFinalHandle,
 } from '../../../test/utils.js';
@@ -76,6 +77,9 @@ describe('handlePipe', () => {
     const expectedPrivateKey = 'test-private-key';
 
     vi.mocked(operations.migrateIdentity).mockResolvedValue(expectedPrivateKey);
+    vi.mocked(operations.checkAccountStatus).mockResolvedValue({
+      accountStatuses: makeMockAccountStatuses(),
+    });
 
     await handlePipe();
 
@@ -83,6 +87,7 @@ describe('handlePipe', () => {
       ...inputData,
       state: expectedState,
       newPrivateKey: expectedPrivateKey,
+      accountStatuses: makeMockAccountStatuses(),
     });
   });
 
