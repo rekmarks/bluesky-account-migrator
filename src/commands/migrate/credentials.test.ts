@@ -231,20 +231,19 @@ describe('validateUrl', () => {
     'http://example.com',
     'https://sub.example.com',
     'https://example.com/path',
+    'example.com',
+    'sub.example.com',
+    'example.com/path',
   ])('should accept valid URL: %s', (url) => {
     expect(validateUrl(url)).toBe(true);
   });
 
-  it.each([
-    ['not-a-url'],
-    ['ftp://example.com'],
-    ['example.com'],
-    ['http://'],
-    ['https://'],
-    [''],
-  ])('should reject invalid URL: %s', (url) => {
-    expect(validateUrl(url)).toBe('Must be a valid HTTP or HTTPS URL string');
-  });
+  it.each([['ftp://example.com'], ['http://'], ['https://'], ['']])(
+    'should reject invalid URL: %s',
+    (url) => {
+      expect(validateUrl(url)).toBe('Must be a valid URL');
+    },
+  );
 });
 
 describe('validateString', () => {
