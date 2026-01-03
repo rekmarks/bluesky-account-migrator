@@ -1,0 +1,6 @@
+- This is a TypeScript project using `pnpm`
+- See `package.json` for lint, build, and test commands
+- To interactively debug the CLI, use `pnpm build:qa` and invoke the CLI using `./dist/main.mjs`
+  - Use the `--help` command to understand how to use the CLI.
+  - The QA build uses environment variables to control the bheavior of the CLI. See `test/mocks`
+- The project is on GitHub. Use `gh` for GitHub operations.
