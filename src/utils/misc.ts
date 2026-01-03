@@ -6,6 +6,20 @@ export const isPlainObject = (
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
 /**
+ * Normalizes a URL string by prepending `https://` if no protocol is present.
+ *
+ * @param value - The URL string to normalize.
+ * @returns The normalized URL string.
+ */
+export const normalizeUrl = (value: string): string => {
+  // If there's already a protocol (any protocol), don't modify
+  if (/^[a-z][a-z0-9+.-]*:\/\//iu.test(value)) {
+    return value;
+  }
+  return `https://${value}`;
+};
+
+/**
  * @param value - The value to check.
  * @returns Whether the value is a valid HTTP or HTTPS URL.
  */

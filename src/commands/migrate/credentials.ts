@@ -14,6 +14,7 @@ import {
   handleUnknownError,
   stringify,
   isPlainObject,
+  normalizeUrl,
 } from '../../utils/index.js';
 
 /**
@@ -23,7 +24,7 @@ import {
 const extractLeafDomain = (handle: string) => handle.split('.').shift();
 
 export const validateUrl = (value: string) =>
-  isHttpUrl(value) || 'Must be a valid HTTP or HTTPS URL string';
+  isHttpUrl(normalizeUrl(value)) || 'Must be a valid URL';
 
 export const validateString = (value: string) =>
   value.length > 0 || 'Must be a non-empty string';
@@ -63,11 +64,13 @@ export const promptMessages = {
 export async function getCredentialsInteractive(): Promise<
   MigrationCredentials | undefined
 > {
-  const oldPdsUrl = await input({
-    message: promptMessages.oldPdsUrl,
-    default: 'https://bsky.social',
-    validate: validateUrl,
-  });
+  const oldPdsUrl = normalizeUrl(
+    await input({
+      message: promptMessages.oldPdsUrl,
+      default: 'https://bsky.social',
+      validate: validateUrl,
+    }),
+  );
 
   const oldHandle = await input({
     message: promptMessages.oldHandle,
@@ -84,10 +87,12 @@ export async function getCredentialsInteractive(): Promise<
     validate: validateString,
   });
 
-  const newPdsUrl = await input({
-    message: promptMessages.newPdsUrl,
-    validate: validateUrl,
-  });
+  const newPdsUrl = normalizeUrl(
+    await input({
+      message: promptMessages.newPdsUrl,
+      validate: validateUrl,
+    }),
+  );
 
   const newPdsHostname = new URL(newPdsUrl).hostname;
 
